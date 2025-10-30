@@ -28,6 +28,7 @@ import { SolanaIcon } from "@/components/Icons/Icons";
 import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { PublicKey } from "@solana/web3.js";
 import { useProtocolState } from "@/hooks/useProtocolState";
+import { getPrice as getOraclePrice } from "@/lib/solana/getSolPriceInUsd";
 
 // Preload dynamic imports for better performance
 let splTokenLoaded = false;
@@ -132,6 +133,7 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
   const { protocolState } = useProtocolState();
 
   const [ausdBalance, setAusdBalance] = useState<bigint>(BigInt(0));
+  const [oracleSolPrice, setOracleSolPrice] = useState<number>(0);
 
   // Memoize selectedCollateral to prevent unnecessary re-renders (must be before borrowingCapacity)
   const selectedCollateral = useMemo(
@@ -226,13 +228,14 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
   // Calculate collateral ratio for new troves (when opening trove)
   const collateralRatioCalculate = useMemo(() => {
     if (!borrowAmount || borrowAmount <= 0) return 0;
-    // Estimate SOL price (use basePrice if available, otherwise use conservative estimate)
-    const estimatedSolPrice = basePrice ?? 140; // Default ~$140/SOL
+    //estimate SOL price
+    const estimatedSolPrice = oracleSolPrice;
+    // Convert SOL → USD
     const collateralValueUSD = (openTroveAmount || 0) * estimatedSolPrice;
     const debtValueUSD = borrowAmount;
     const ratio = (collateralValueUSD / debtValueUSD) * 100;
     return isFinite(ratio) ? ratio : 0;
-  }, [openTroveAmount, borrowAmount, basePrice]);
+  }, [openTroveAmount, borrowAmount, oracleSolPrice]);
 
   const collateralRatio = collateralRatioCalculate;
 
@@ -373,6 +376,23 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
     };
   }, [address, connection]);
 
+  // Fetch  SOL price for UI calculations
+  useEffect(() => {
+    const fetchOraclePrice = async () => {
+      if (!connection) return;
+
+      try {
+        const price = await getOraclePrice("SOL");
+        if (Number.isFinite(price) && price > 0) {
+          setOracleSolPrice(price);
+        }
+      } catch (error) {
+        console.error("Error fetching oracle SOL price:", error);
+      }
+    };
+
+    fetchOraclePrice();
+  }, [connection]);
   const withdrawDisabled = useMemo(
     () =>
       collateralAmount <= 0 ||

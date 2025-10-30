@@ -1082,6 +1082,63 @@ export function useSolanaProtocol() {
         }
     };
 
+    const liquidateTrove = async (targetUser: PublicKey) => {
+        if (!isConnected || !walletProvider || !address) {
+            throw new Error('Wallet not connected');
+        }
+        if (!connection) {
+            throw new Error('Connection not available');
+        }
+        if (!protocolState) {
+            throw new Error('Protocol state not loaded');
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const userPublicKey = new PublicKey(address);
+            const { collateralMint, stablecoinMint, oracleProgramId, oracleState } = protocolState;
+
+            console.log('🔨 Building single liquidate_trove for', targetUser.toBase58());
+
+            const { buildLiquidateTroveInstruction } = await import('@/lib/solana/buildInstructions');
+            const { instruction } = await buildLiquidateTroveInstruction(
+                userPublicKey,
+                targetUser,
+                'SOL',
+                collateralMint,
+                stablecoinMint,
+                oracleProgramId,
+                oracleState,
+            );
+
+            const tx = new Transaction().add(instruction);
+            tx.feePayer = walletProvider.publicKey;
+            tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+            console.log('🔍 Simulating liquidate_trove transaction...');
+            const simulation = await connection.simulateTransaction(tx);
+            console.log('📊 Simulation result:');
+            console.log('- Error:', simulation.value.err);
+            console.log('- Logs:', simulation.value.logs);
+            console.log('- Units consumed:', simulation.value.unitsConsumed);
+            if (simulation.value.err) {
+                throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
+            }
+
+            const signature = await walletProvider.signAndSendTransaction(tx);
+            console.log('✅ Single liquidate transaction sent:', signature);
+            return signature;
+        } catch (err: any) {
+            console.error('❌ Liquidate trove error:', err);
+            setError(err.message || 'Failed to liquidate trove');
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const redeem = async (params: {
         redeemAmount: number;
     }) => {
@@ -1138,36 +1195,36 @@ export function useSolanaProtocol() {
                 console.log(`  ${idx + 1}. ${trove.owner.toBase58()} - ICR: ${icrDisplay.toFixed(2)}%, Debt: ${Number(trove.debt) / 1e18} aUSD`);
             });
 
-            // 3. Select troves to redeem from (maximum 3 troves)
+            // 3. Select troves to redeem from (maximum 3 troves) and validate against NET amount after protocol fee
             const MAX_TROVES_PER_REDEMPTION = 3;
             const selectedTroves: PublicKey[] = [];
-            let cumulativeDebt = BigInt(0);
-            let remainingAmount = redeemAmountInSmallestUnit;
+
+            // Determine fee percent (fallback to 5%)
+            const feePercent = 0.05;
+            const netRequested = redeemAmountInSmallestUnit - BigInt(
+                Math.floor(Number(redeemAmountInSmallestUnit) * feePercent)
+            );
+
+            let coveredNet = BigInt(0);
+            let remainingNet = netRequested;
 
             for (const trove of sortedTroves) {
-                if (selectedTroves.length >= MAX_TROVES_PER_REDEMPTION) {
-                    break;
-                }
-
-                if (trove.debt > 0) {
+                if (selectedTroves.length >= MAX_TROVES_PER_REDEMPTION) break;
+                if (trove.debt > BigInt(0)) {
                     selectedTroves.push(trove.owner);
-                    const troveDebt = trove.debt;
-                    const redeemFromTrove = remainingAmount < troveDebt ? remainingAmount : troveDebt;
-
-                    cumulativeDebt += troveDebt;
-                    remainingAmount -= redeemFromTrove;
-
-                    console.log(`Selected trove: ${trove.owner.toBase58()}, Debt: ${Number(troveDebt) / 1e18} aUSD`);
-
-                    if (remainingAmount <= 0) {
-                        break;
-                    }
+                    const take = remainingNet < trove.debt ? remainingNet : trove.debt;
+                    coveredNet += take;
+                    remainingNet -= take;
+                    console.log(`Selected trove: ${trove.owner.toBase58()}, Debt: ${Number(trove.debt) / 1e18} aUSD`);
+                    if (remainingNet <= BigInt(0)) break;
                 }
             }
 
-            // 4. Validate we have enough liquidity
-            if (cumulativeDebt < redeemAmountInSmallestUnit) {
-                throw new Error(`Insufficient liquidity. Available: ${Number(cumulativeDebt) / 1e18} aUSD, Requested: ${params.redeemAmount} aUSD`);
+            // 4. Validate we have enough liquidity (compare NET)
+            if (coveredNet < netRequested) {
+                throw new Error(
+                    `Insufficient liquidity (3 lowest-ICR troves). Available net: ${Number(coveredNet) / 1e18} aUSD, Required net: ${Number(netRequested) / 1e18} aUSD`
+                );
             }
 
             console.log(`Selected ${selectedTroves.length} troves for redemption`);
@@ -1352,6 +1409,7 @@ export function useSolanaProtocol() {
         stake,
         unstake,
         liquidateTroves,
+        liquidateTrove,
         redeem,
         withdrawLiquidationGains,
         loading,

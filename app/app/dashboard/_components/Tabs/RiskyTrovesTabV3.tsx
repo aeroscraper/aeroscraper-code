@@ -46,7 +46,7 @@ interface RiskyTrovesTabV3Props { }
 const RiskyTrovesTabV3: FC<RiskyTrovesTabV3Props> = () => {
   const { connection } = useAppKitConnection();
   const { protocolState } = useProtocolState();
-  const { liquidateTroves, loading: protocolLoading } = useSolanaProtocol();
+  const { liquidateTroves, liquidateTrove, loading: protocolLoading } = useSolanaProtocol();
   const { addNotification, setProcessLoading, processLoading } = useNotification();
 
   const [riskyTroves, setRiskyTroves] = useState<TroveData[]>([]);
@@ -130,7 +130,8 @@ const RiskyTrovesTabV3: FC<RiskyTrovesTabV3Props> = () => {
       setProcessLoading(true);
       setLiquidationPending(prev => new Set(prev).add(ownerKey));
 
-      const signature = await liquidateTroves({ troveOwners: [owner] });
+      // Use single-trove liquidation for per-row action
+      const signature = await liquidateTrove(owner);
 
       addNotification({
         status: 'success',

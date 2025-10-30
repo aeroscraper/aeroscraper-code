@@ -9,11 +9,13 @@ import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { useProtocolState } from "@/hooks/useProtocolState";
 import { PublicKey } from "@solana/web3.js";
 import { fetchLiquidationGains } from "@/lib/solana/fetchLiquidationGains";
+import { SolanaIcon } from "@/components/Icons/Icons";
 
 const ClaimRewardTab: FC = () => {
   const { address, isConnected } = useAppKitAccount();
   const { connection } = useAppKitConnection();
-  const { withdrawLiquidationGains, loading: protocolLoading } = useSolanaProtocol();
+  const { withdrawLiquidationGains, loading: protocolLoading } =
+    useSolanaProtocol();
   const { protocolState } = useProtocolState();
   const { addNotification } = useNotification();
 
@@ -29,7 +31,11 @@ const ClaimRewardTab: FC = () => {
 
       try {
         const userPublicKey = new PublicKey(address);
-        const gain = await fetchLiquidationGains(connection, userPublicKey, 'SOL');
+        const gain = await fetchLiquidationGains(
+          connection,
+          userPublicKey,
+          "SOL"
+        );
         setLiquidationGain(gain);
       } catch (err) {
         console.error("Error fetching liquidation gains:", err);
@@ -44,7 +50,9 @@ const ClaimRewardTab: FC = () => {
 
   const rewardClaim = async () => {
     try {
-      const signature = await withdrawLiquidationGains({ collateralDenom: "SOL" });
+      const signature = await withdrawLiquidationGains({
+        collateralDenom: "SOL",
+      });
 
       addNotification({
         status: "success",
@@ -55,7 +63,11 @@ const ClaimRewardTab: FC = () => {
       // Refresh liquidation gain amount after success
       if (address && connection) {
         const userPublicKey = new PublicKey(address);
-        const gain = await fetchLiquidationGains(connection, userPublicKey, 'SOL');
+        const gain = await fetchLiquidationGains(
+          connection,
+          userPublicKey,
+          "SOL"
+        );
         setLiquidationGain(gain);
       }
     } catch (err: any) {
@@ -80,11 +92,7 @@ const ClaimRewardTab: FC = () => {
               Reward
             </Text>
             <div className="flex items-center gap-2">
-              <img
-                alt="SOL"
-                src="/images/token-images/solana.svg"
-                className="w-6 h-6"
-              />
+              <SolanaIcon />
               <Text size="base" weight="font-medium">
                 SOL
               </Text>

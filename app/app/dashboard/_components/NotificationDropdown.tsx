@@ -121,7 +121,7 @@ const NotificationItem: FC<ItemProps> = ({
       >
         <Link
           className={`flex items-center hover:opacity-30 duration-500 transition-opacity`}
-          href={`${scanDomain}${directLink}`}
+          href={`${directLink}`}
           target="_blank"
         >
           {isRead === false && <RedDotIcon className="mr-2" />}
