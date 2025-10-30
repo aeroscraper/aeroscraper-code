@@ -1,0 +1,1120 @@
+{
+  "address": "8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M",
+  "metadata": {
+    "name": "aerospacer_oracle",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "docs": [
+    "Aerospacer Oracle Program",
+    "",
+    "This program provides real-time price feeds for collateral assets in the Aeroscraper protocol.",
+    "It integrates with Pyth Network to fetch accurate, up-to-date price data and manages",
+    "collateral asset configuration for the lending protocol.",
+    "",
+    "This program completely replicates the INJECTIVE oracle contract functionality for Solana",
+    "with full Pyth Network integration using the official SDK."
+  ],
+  "instructions": [
+    {
+      "name": "check_denom",
+      "docs": [
+        "Check if a specific asset denomination is supported"
+      ],
+      "discriminator": [
+        205,
+        28,
+        152,
+        95,
+        41,
+        203,
+        190,
+        57
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "CheckDenomParams"
+            }
+          }
+        }
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_all_denoms",
+      "docs": [
+        "Get all supported asset denominations"
+      ],
+      "discriminator": [
+        42,
+        159,
+        190,
+        212,
+        230,
+        156,
+        25,
+        191
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "GetAllDenomsParams"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "vec": "string"
+      }
+    },
+    {
+      "name": "get_all_prices",
+      "docs": [
+        "Get real-time prices for ALL supported collateral assets using Pyth SDK"
+      ],
+      "discriminator": [
+        162,
+        219,
+        23,
+        163,
+        10,
+        236,
+        138,
+        229
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "GetAllPricesParams"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "vec": {
+          "defined": {
+            "name": "PriceResponse"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_config",
+      "docs": [
+        "Get configuration information (admin, oracle address, asset count, last update)"
+      ],
+      "discriminator": [
+        149,
+        105,
+        239,
+        181,
+        106,
+        218,
+        221,
+        71
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "GetConfigParams"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "ConfigResponse"
+        }
+      }
+    },
+    {
+      "name": "get_price",
+      "docs": [
+        "Get real-time price for a specific collateral asset using Pyth SDK"
+      ],
+      "discriminator": [
+        238,
+        38,
+        193,
+        106,
+        228,
+        32,
+        210,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pyth_price_account"
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "GetPriceParams"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "PriceResponse"
+        }
+      }
+    },
+    {
+      "name": "get_price_id",
+      "docs": [
+        "Get price ID for a specific asset denomination"
+      ],
+      "discriminator": [
+        155,
+        105,
+        230,
+        166,
+        3,
+        82,
+        59,
+        142
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "GetPriceIdParams"
+            }
+          }
+        }
+      ],
+      "returns": "string"
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the oracle program with admin and oracle provider address"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "remove_data",
+      "docs": [
+        "Remove support for a collateral asset (admin only)"
+      ],
+      "discriminator": [
+        213,
+        216,
+        29,
+        85,
+        228,
+        186,
+        221,
+        152
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "RemoveDataParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_data",
+      "docs": [
+        "Set configuration for a single collateral asset (admin only)"
+      ],
+      "discriminator": [
+        223,
+        114,
+        91,
+        136,
+        197,
+        78,
+        153,
+        153
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "SetDataParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_data_batch",
+      "docs": [
+        "Set configuration for multiple collateral assets in batch (admin only)"
+      ],
+      "discriminator": [
+        74,
+        44,
+        139,
+        67,
+        18,
+        58,
+        152,
+        216
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "SetDataBatchParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_oracle_address",
+      "docs": [
+        "Update the external oracle provider address (admin only)"
+      ],
+      "discriminator": [
+        153,
+        119,
+        99,
+        33,
+        4,
+        48,
+        213,
+        149
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateOracleAddressParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_pyth_price",
+      "docs": [
+        "Update Pyth price feed for a specific asset (admin only)"
+      ],
+      "discriminator": [
+        221,
+        14,
+        48,
+        182,
+        7,
+        77,
+        193,
+        167
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pyth_price_account"
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdatePythPriceParams"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "OracleStateAccount",
+      "discriminator": [
+        251,
+        255,
+        178,
+        147,
+        151,
+        254,
+        138,
+        21
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access - admin only"
+    },
+    {
+      "code": 6001,
+      "name": "PriceFeedNotFound",
+      "msg": "Price feed not found for the specified denom"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidPriceData",
+      "msg": "Invalid price data format or corrupted data"
+    },
+    {
+      "code": 6003,
+      "name": "PriceTooOld",
+      "msg": "Price data is too old (exceeds staleness threshold)"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidPriceId",
+      "msg": "Invalid price ID format"
+    },
+    {
+      "code": 6005,
+      "name": "PriceFeedUnavailable",
+      "msg": "Price feed not available"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidPriceStatus",
+      "msg": "Invalid price status"
+    },
+    {
+      "code": 6007,
+      "name": "PriceValidationFailed",
+      "msg": "Price validation failed"
+    },
+    {
+      "code": 6008,
+      "name": "OracleQueryFailed",
+      "msg": "Oracle query failed"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidCollateralData",
+      "msg": "Invalid collateral data"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidBatchData",
+      "msg": "Batch data validation failed"
+    },
+    {
+      "code": 6011,
+      "name": "CollateralDataNotFound",
+      "msg": "Collateral data not found for removal"
+    },
+    {
+      "code": 6012,
+      "name": "PythPriceFeedLoadFailed",
+      "msg": "Pyth price feed loading failed"
+    },
+    {
+      "code": 6013,
+      "name": "PythPriceValidationFailed",
+      "msg": "Pyth price data validation failed"
+    },
+    {
+      "code": 6014,
+      "name": "PythAccountDataCorrupted",
+      "msg": "Pyth account data corrupted"
+    },
+    {
+      "code": 6015,
+      "name": "PythPriceAccountValidationFailed",
+      "msg": "Pyth price account validation failed"
+    }
+  ],
+  "types": [
+    {
+      "name": "CheckDenomParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination to check (e.g., \"inj\", \"atom\")"
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollateralData",
+      "docs": [
+        "Collateral asset data structure for oracle integration"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination (e.g., \"inj\", \"atom\", \"sol\")"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "decimal",
+            "docs": [
+              "Decimal precision for price calculations (6, 18, etc.)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "price_id",
+            "docs": [
+              "Pyth Network price feed identifier (hex format)",
+              "Example: \"0x2f95862b045670cd22bee3114c39763a34a94be1d3d9e600dfe3238c6f7bcef3\""
+            ],
+            "type": "string"
+          },
+          {
+            "name": "configured_at",
+            "docs": [
+              "Timestamp when this asset was last configured"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "pyth_price_account",
+            "docs": [
+              "Pyth price account address for this asset"
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigResponse",
+      "docs": [
+        "Configuration response containing contract settings"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "Contract administrator address"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_address",
+            "docs": [
+              "Current external oracle provider address"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "asset_count",
+            "docs": [
+              "Number of supported collateral assets"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "last_update",
+            "docs": [
+              "Timestamp of last configuration update"
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetAllDenomsParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "GetAllPricesParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "GetConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "GetPriceIdParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination (e.g., \"inj\", \"atom\")"
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetPriceParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "oracle_address",
+            "docs": [
+              "External oracle provider address (e.g., Pyth Network)"
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleStateAccount",
+      "docs": [
+        "Main oracle state account containing all configuration and data"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "Contract administrator with privileged access"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_address",
+            "docs": [
+              "External oracle provider address (e.g., Pyth Network)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "collateral_data",
+            "docs": [
+              "Vector of supported collateral assets and their configuration"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CollateralData"
+                }
+              }
+            }
+          },
+          {
+            "name": "last_update",
+            "docs": [
+              "Timestamp of last state update"
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PriceResponse",
+      "docs": [
+        "Price response containing real-time asset price data"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination (e.g., \"inj\", \"atom\")"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "price",
+            "docs": [
+              "Current real-time price from oracle (scaled by decimals)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "decimal",
+            "docs": [
+              "Decimal precision for price calculations"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Timestamp when price was fetched"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "confidence",
+            "docs": [
+              "Price confidence interval (from Pyth)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "exponent",
+            "docs": [
+              "Price exponent (from Pyth)"
+            ],
+            "type": "i32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoveDataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "collateral_denom",
+            "docs": [
+              "Asset denomination to remove (e.g., \"inj\", \"atom\")"
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetDataBatchParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "data",
+            "docs": [
+              "Vector of collateral asset data to configure"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CollateralData"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetDataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination (e.g., \"inj\", \"atom\")"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "decimal",
+            "docs": [
+              "Decimal precision for price calculations (6, 18, etc.)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "price_id",
+            "docs": [
+              "Pyth Network price feed identifier (hex format)"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "pyth_price_account",
+            "docs": [
+              "Pyth price account address for this asset"
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateOracleAddressParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_oracle_address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdatePythPriceParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "docs": [
+              "Asset denomination to update price for"
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}
