@@ -31,9 +31,16 @@ export async function getNeighborHints(
 ): Promise<PublicKey[]> {
   // 1. Fetch all existing troves
   const allTroves = await fetchAllTroves(connection, collateralDenom);
+  console.log('[neighborHints] total troves:', allTroves.length);
 
   // 2. Sort by ICR
   const sortedTroves = sortTrovesByICR(allTroves);
+  console.log('[neighborHints] top-5 sorted ICRs (micro-%):');
+  sortedTroves.slice(0, 5).forEach((t, i) => {
+    console.log(
+      `  ${i + 1}. ${t.owner.toBase58()} icr=${t.icr.toString()} debt=${t.debt.toString()}`
+    );
+  });
 
   // 3. Calculate ICR for new trove
   // Using simplified price estimate ($100/SOL)
@@ -43,6 +50,13 @@ export async function getNeighborHints(
   const loanAmountBigInt = BigInt(loanAmount);
 
   const newICR = calculateICR(collateralAmountBigInt, loanAmountBigInt, estimatedSolPrice);
+  console.log('[neighborHints] new trove params:', {
+    user: userPublicKey.toBase58(),
+    collateralAmount,
+    loanAmount,
+    estimatedSolPrice: estimatedSolPrice.toString(),
+    newICR: newICR.toString(),
+  });
 
   // 4. Create temporary TroveData for new trove
   const [liquidityThresholdPDA] = PublicKey.findProgramAddressSync(
@@ -62,6 +76,7 @@ export async function getNeighborHints(
   // 5. Insert into sorted position
   const insertIndex = sortedTroves.findIndex((t) => t.icr > newICR);
   const finalIndex = insertIndex === -1 ? sortedTroves.length : insertIndex;
+  console.log('[neighborHints] insertIndex:', insertIndex, 'finalIndex:', finalIndex);
 
   const newSortedTroves = [
     ...sortedTroves.slice(0, finalIndex),
@@ -71,8 +86,30 @@ export async function getNeighborHints(
 
   // 6. Find neighbors
   const neighbors = findNeighbors(newTrove, newSortedTroves);
+  console.log('[neighborHints] neighbors:', {
+    prev:
+      neighbors.prev && {
+        owner: neighbors.prev.owner.toBase58(),
+        icr: neighbors.prev.icr.toString(),
+        lt: neighbors.prev.liquidityThresholdAccount?.toBase58?.(),
+      },
+    next:
+      neighbors.next && {
+        owner: neighbors.next.owner.toBase58(),
+        icr: neighbors.next.icr.toString(),
+        lt: neighbors.next.liquidityThresholdAccount?.toBase58?.(),
+      },
+  });
 
-  // 7. Build and return neighbor accounts
-  return buildNeighborAccounts(neighbors);
+  // 7. Build and return neighbor accounts with protocol rules
+  // If inserting at head, return [] to avoid single 'next' being misread as 'prev' on-chain
+  if (finalIndex === 0) {
+    console.log('[neighborHints] at head → returning no hints to avoid misinterpretation');
+    return [];
+  }
+
+  const accounts = buildNeighborAccounts(neighbors);
+  console.log('[neighborHints] returning hint accounts:', accounts.map((a) => a.toBase58()));
+  return accounts;
 }
 
