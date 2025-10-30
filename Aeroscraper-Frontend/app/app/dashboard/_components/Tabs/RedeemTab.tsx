@@ -12,6 +12,7 @@ import {
   Logo,
   LogoSecondary,
   RedeemIcon,
+  SolanaIcon,
 } from "@/components/Icons/Icons";
 import BorderedNumberInput from "@/components/Input/BorderedNumberInput";
 import BorderedContainer from "@/components/Containers/BorderedContainer";
@@ -33,6 +34,10 @@ const RedeemTab: FC = () => {
   const [ausdBalance, setAusdBalance] = useState<bigint>(BigInt(0));
   const [estimatedSOL, setEstimatedSOL] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingTroves, setLoadingTroves] = useState(false);
+  const [sortedTroves, setSortedTroves] = useState<any[]>([]);
+  const [maxRedeemableGross, setMaxRedeemableGross] = useState(0);
+  const [exceededHint, setExceededHint] = useState(false);
 
   // Fetch user's aUSD balance
   useEffect(() => {
@@ -64,67 +69,85 @@ const RedeemTab: FC = () => {
     return () => clearInterval(interval);
   }, [address, connection, protocolState]);
 
-  // Calculate estimated SOL to receive
+  // Background trove polling (fast UX): fetch once and every 12s
   useEffect(() => {
-    const calculateEstimatedSOL = async () => {
-      if (!redeemAmount || !connection || redeemAmount <= 0) {
-        setEstimatedSOL(0);
-        return;
-      }
-
+    if (!connection) { setSortedTroves([]); return; }
+    let aborted = false;
+    const poll = async () => {
       try {
-        setLoading(true);
-
-        // Fetch all troves
+        setLoadingTroves(true);
         const allTroves = await fetchAllTroves(connection as unknown as Connection, 'SOL');
-
-        // Sort by ICR (ascending - lowest first)
-        const sortedTroves = allTroves.sort((a, b) => {
-          if (a.icr < b.icr) return -1;
-          if (a.icr > b.icr) return 1;
-          return 0;
-        });
-
-        // Select troves to redeem from (max 3)
-        const MAX_TROVES = 3;
-        const redeemAmountInSmallestUnit = BigInt(Math.floor(redeemAmount * 1e18));
-        let remainingAmount = redeemAmountInSmallestUnit;
-        let totalCollateralToReceive = BigInt(0);
-
-        for (const trove of sortedTroves) {
-          if (remainingAmount <= 0) break;
-          if (trove.debt <= 0) continue;
-
-          const redeemFromTrove = remainingAmount < trove.debt ? remainingAmount : trove.debt;
-
-          // Calculate proportional collateral
-          const collateralRatio = Number(redeemFromTrove) / Number(trove.debt);
-          const collateralToReceive = BigInt(Math.floor(Number(trove.collateralAmount) * collateralRatio));
-
-          totalCollateralToReceive += collateralToReceive;
-          remainingAmount -= redeemFromTrove;
+        if (aborted) return;
+        const s = allTroves.sort((a, b) => (a.icr < b.icr ? -1 : a.icr > b.icr ? 1 : 0));
+        setSortedTroves(s);
+      } catch (e) {
+        if (!aborted) {
+          console.error('Error fetching troves:', e);
+          setSortedTroves([]);
         }
-
-        // Convert to SOL (divide by 1e9)
-        const solAmount = Number(totalCollateralToReceive) / 1e9;
-        setEstimatedSOL(solAmount);
-
-      } catch (err) {
-        console.error("Error calculating estimated SOL:", err);
-        setEstimatedSOL(0);
       } finally {
-        setLoading(false);
+        if (!aborted) setLoadingTroves(false);
       }
     };
+    poll();
+    const id = setInterval(poll, 12000);
+    return () => { aborted = true; clearInterval(id); };
+  }, [connection]);
 
-    calculateEstimatedSOL();
-  }, [redeemAmount, connection]);
+  // Compute max redeemable and estimate from cached troves + balance
+  useEffect(() => {
+    const MAX_TROVES = 3;
+    const feePercent = 0.05; // fallback
+    if (!sortedTroves || sortedTroves.length === 0) {
+      setMaxRedeemableGross(0);
+      setEstimatedSOL(0);
+      return;
+    }
+    const limited = sortedTroves.slice(0, MAX_TROVES);
+    const netCap = limited.reduce((acc, t) => acc + Number(t.debt) / 1e18, 0);
+    const userAusd = Number(ausdBalance) / 1e18;
+    // Compute gross cap with safe floor to avoid rounding up beyond on-chain debt
+    const grossCapRaw = netCap > 0 ? netCap / (1 - feePercent) : 0;
+    const grossCapFloored = Math.floor(grossCapRaw * 1e6) / 1e6; // floor to 6 decimals
+    const grossCap = Math.min(grossCapFloored, userAusd, 999);
+    setMaxRedeemableGross(grossCap);
+    if (grossCap > 0 && Math.abs(redeemAmount - grossCap) > 1e-12) {
+      setRedeemAmount(grossCap);
+    }
+    const effectiveGross = grossCap > 0 ? Math.min(redeemAmount || grossCap, grossCap) : 0;
+    const effectiveNet = effectiveGross * (1 - feePercent);
+    let remainingAmount = BigInt(Math.floor(effectiveNet * 1e18));
+    let totalCollateralToReceive = BigInt(0);
+    for (const t of sortedTroves) {
+      if (remainingAmount <= BigInt(0)) break;
+      if (t.debt <= 0) continue;
+      const take = remainingAmount < t.debt ? remainingAmount : t.debt;
+      const ratio = Number(take) / Number(t.debt);
+      const coll = BigInt(Math.floor(Number(t.collateralAmount) * ratio));
+      totalCollateralToReceive += coll;
+      remainingAmount -= take;
+    }
+    setEstimatedSOL(Number(totalCollateralToReceive) / 1e9);
+  }, [sortedTroves, ausdBalance, redeemAmount]);
 
   const changeRedeemAmount = useCallback(
     (values: NumberFormatValues) => {
-      setRedeemAmount(Number(values.value));
+      const raw = Number(values.value);
+      if (!raw || raw <= 0) {
+        setRedeemAmount(0);
+        setExceededHint(false);
+        return;
+      }
+      const cap = maxRedeemableGross > 0 ? maxRedeemableGross : 0;
+      if (cap > 0 && raw > cap) {
+        setRedeemAmount(cap);
+        setExceededHint(true);
+      } else {
+        setRedeemAmount(raw);
+        setExceededHint(false);
+      }
     },
-    []
+    [maxRedeemableGross]
   );
 
   const redeemDisabled = useMemo(
@@ -132,10 +155,11 @@ const RedeemTab: FC = () => {
       isNil(redeemAmount) ||
       redeemAmount <= 0 ||
       redeemAmount > 999 ||
+      (maxRedeemableGross > 0 && redeemAmount > maxRedeemableGross) ||
       redeemAmount > Number(ausdBalance) / 1e18 ||
       processLoading ||
       loading,
-    [redeemAmount, ausdBalance, processLoading, loading]
+    [redeemAmount, maxRedeemableGross, ausdBalance, processLoading, loading]
   );
 
   const handleRedeem = async () => {
@@ -182,6 +206,7 @@ const RedeemTab: FC = () => {
               containerClassName="h-10 text-end flex-1 ml-6"
               bgVariant="blue"
               className="text-end"
+              disabled
             />
           </div>
           <NumericFormat
@@ -195,6 +220,13 @@ const RedeemTab: FC = () => {
               <Text size="base" className="md:mt-4 ml-auto">
                 Available:{" "}
                 <span className="font-regular ml-2">{value} AUSD</span>
+                <span className="opacity-60 mx-2">|</span>
+                Max redeemable:{" "}
+                {loadingTroves ? (
+                  <span className="inline-block ml-2 w-24 h-4 rounded bg-white/10 animate-pulse" />
+                ) : (
+                  <span className="font-regular ml-2">{maxRedeemableGross} AUSD</span>
+                )}
               </Text>
             )}
           />
@@ -208,11 +240,12 @@ const RedeemTab: FC = () => {
         </div>
         <div className="w-full bg-cetacean-dark-blue border border-white/10 rounded-xl md:rounded-2xl px-3 pt-6 pb-3 md:px-6 md:py-8 flex items-center justify-between mt-6">
           <div className="flex items-center gap-2">
-            <img
+            {/* <img
               alt="sol"
               src="/images/token-images/sol.svg"
               className="w-6 h-6"
-            />
+            /> */}
+            <SolanaIcon />
             <Text size="base" weight="font-medium">
               SOL
             </Text>
@@ -226,7 +259,11 @@ const RedeemTab: FC = () => {
             displayType="text"
             renderText={(value) => (
               <Text size="5xl" textColor="text-gradient" weight="font-normal">
-                {loading ? "..." : value}
+                {loadingTroves || loading ? (
+                  <span className="inline-block w-28 h-6 rounded bg-white/10 animate-pulse" />
+                ) : (
+                  value
+                )}
               </Text>
             )}
           />
@@ -241,11 +278,13 @@ const RedeemTab: FC = () => {
             disabledText={
               redeemAmount <= 0
                 ? "Enter the AUSD amount to redeem"
-                : redeemAmount > Number(ausdBalance) / 1e18
-                  ? "Insufficient aUSD balance"
-                  : redeemAmount > 999
-                    ? "Maximum 999 AUSD per redemption"
-                    : "Calculating estimated SOL..."
+                : (maxRedeemableGross > 0 && redeemAmount > maxRedeemableGross)
+                  ? "Exceeds single-transaction max redeemable"
+                  : redeemAmount > Number(ausdBalance) / 1e18
+                    ? "Insufficient aUSD balance"
+                    : redeemAmount > 999
+                      ? "Maximum 999 AUSD per redemption"
+                      : "Calculating estimated SOL..."
             }
           />
         </div>

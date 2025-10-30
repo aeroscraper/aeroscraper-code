@@ -1,3 +1,4 @@
+"use client";
 import useChainAdapter from "@/hooks/useChainAdapter";
 import { useAppKitAccount } from "@reown/appkit/react";
 import {

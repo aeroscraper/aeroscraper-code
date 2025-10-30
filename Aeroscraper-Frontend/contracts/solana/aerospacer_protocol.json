@@ -897,6 +897,303 @@
       ]
     },
     {
+      "name": "liquidate_trove",
+      "discriminator": [
+        110,
+        186,
+        176,
+        173,
+        124,
+        141,
+        62,
+        235
+      ],
+      "accounts": [
+        {
+          "name": "liquidator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "stable_coin_mint",
+          "writable": true
+        },
+        {
+          "name": "protocol_stablecoin_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  98,
+                  108,
+                  101,
+                  99,
+                  111,
+                  105,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "protocol_collateral_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108,
+                  95,
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.collateral_denom"
+              }
+            ]
+          }
+        },
+        {
+          "name": "total_collateral_amount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  116,
+                  97,
+                  108,
+                  95,
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  97,
+                  109,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.collateral_denom"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_debt_amount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  100,
+                  101,
+                  98,
+                  116,
+                  95,
+                  97,
+                  109,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.target_user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_collateral_amount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  97,
+                  109,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.target_user"
+              },
+              {
+                "kind": "arg",
+                "path": "params.collateral_denom"
+              }
+            ]
+          }
+        },
+        {
+          "name": "liquidity_threshold",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  113,
+                  117,
+                  105,
+                  100,
+                  105,
+                  116,
+                  121,
+                  95,
+                  116,
+                  104,
+                  114,
+                  101,
+                  115,
+                  104,
+                  111,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.target_user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_collateral_token_account",
+          "writable": true
+        },
+        {
+          "name": "oracle_program",
+          "writable": true
+        },
+        {
+          "name": "oracle_state",
+          "writable": true
+        },
+        {
+          "name": "pyth_price_account"
+        },
+        {
+          "name": "clock",
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "LiquidateTroveParams"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "liquidate_troves",
       "discriminator": [
         151,
@@ -3178,6 +3475,22 @@
           {
             "name": "fee_state_addr",
             "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidateTroveParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "target_user",
+            "type": "pubkey"
+          },
+          {
+            "name": "collateral_denom",
+            "type": "string"
           }
         ]
       }

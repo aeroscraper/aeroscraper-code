@@ -51,8 +51,8 @@ const TabsSide: FC<Props> = ({ setTabPosition }) => {
     "redeem",
     "riskyTroves",
     "rewards",
-    "leaderboard",
-    "missions",
+    // "leaderboard",
+    // "missions",
   ];
 
   // if (
@@ -109,7 +109,7 @@ const TabsSide: FC<Props> = ({ setTabPosition }) => {
         onTabSelected={(e) => {
           handleChangeTab(e);
         }}
-      // loading={loading}
+        // loading={loading}
       />
       {/* {loading ? (
         <>
@@ -149,7 +149,7 @@ const TabsSide: FC<Props> = ({ setTabPosition }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7 }}
-      // className={`md:mt-6 ${isNil(walletInfo) ? "blur-[2px]" : ""} relative`}
+        // className={`md:mt-6 ${isNil(walletInfo) ? "blur-[2px]" : ""} relative`}
       >
         {/* {isNil(walletInfo) && (
             <div className="cursor-not-allowed h-full w-full absolute top-0 bottom-0 left-0 z-50" />
@@ -160,15 +160,9 @@ const TabsSide: FC<Props> = ({ setTabPosition }) => {
         {(selectedTab === "trove" || selectedTab === "createTrove") && (
           <TroveTab />
         )}
-        {selectedTab === "stabilityPool" && (
-          <StabilityPoolTab />
-        )}
-        {selectedTab === "riskyTroves" && (
-          <RiskyTrovesTabV3 />
-        )}
-        {selectedTab === "redeem" && (
-          <RedeemTab />
-        )}
+        {selectedTab === "stabilityPool" && <StabilityPoolTab />}
+        {selectedTab === "riskyTroves" && <RiskyTrovesTabV3 />}
+        {selectedTab === "redeem" && <RedeemTab />}
         {selectedTab === "rewards" && <ClaimRewardTab />}
         {/*{selectedTab === "leaderboard" && <LeaderboardTab />}
         {selectedTab === "missions" && <Missions />} */}

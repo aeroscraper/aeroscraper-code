@@ -1095,6 +1095,100 @@ export async function buildRedeemInstruction(
   return { instruction };
 }
 
+export async function buildLiquidateTroveInstruction(
+  liquidator: PublicKey,
+  targetUser: PublicKey,
+  collateralDenom: string,
+  collateralMint: PublicKey,
+  stablecoinMint: PublicKey,
+  oracleProgramId: PublicKey,
+  oracleState: PublicKey,
+): Promise<{ instruction: TransactionInstruction }> {
+  console.log('🔨 Building liquidate_trove instruction...');
+  console.log('Liquidator:', liquidator.toBase58());
+  console.log('Target user:', targetUser.toBase58());
+  console.log('Collateral denom:', collateralDenom);
+
+  // PDAs
+  const [protocolStatePDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('state')],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [protocolStablecoinVaultPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('protocol_stablecoin_vault')],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [protocolCollateralVaultPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('protocol_collateral_vault'), Buffer.from(collateralDenom)],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [totalCollateralAmountPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('total_collateral_amount'), Buffer.from(collateralDenom)],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [userDebtAmountPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('user_debt_amount'), targetUser.toBuffer()],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [userCollateralAmountPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('user_collateral_amount'), targetUser.toBuffer(), Buffer.from(collateralDenom)],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [liquidityThresholdPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('liquidity_threshold'), targetUser.toBuffer()],
+    PROTOCOL_PROGRAM_ID
+  );
+
+  // Target user's collateral ATA
+  const userCollateralATA = await getAssociatedTokenAddress(collateralMint, targetUser);
+
+  // Discriminator for liquidate_trove: [110,186,176,173,124,141,62,235]
+  const discriminator = new Uint8Array([110, 186, 176, 173, 124, 141, 62, 235]);
+
+  // Serialize params: target_user (pubkey 32 bytes) + string collateral_denom (len u32 + bytes)
+  const targetBytes = new Uint8Array(targetUser.toBuffer());
+  const denomBytes = new TextEncoder().encode(collateralDenom);
+  const denomLen = new Uint8Array(4);
+  new DataView(denomLen.buffer).setUint32(0, denomBytes.length, true);
+  const dataArray = new Uint8Array(
+    discriminator.length + targetBytes.length + denomLen.length + denomBytes.length
+  );
+  let off = 0;
+  dataArray.set(discriminator, off); off += discriminator.length;
+  dataArray.set(targetBytes, off); off += targetBytes.length;
+  dataArray.set(denomLen, off); off += denomLen.length;
+  dataArray.set(denomBytes, off);
+  const data = Buffer.from(dataArray);
+
+  const accountMetas: AccountMeta[] = [
+    { pubkey: liquidator, isSigner: true, isWritable: true },
+    { pubkey: protocolStatePDA, isSigner: false, isWritable: true },
+    { pubkey: stablecoinMint, isSigner: false, isWritable: true },
+    { pubkey: protocolStablecoinVaultPDA, isSigner: false, isWritable: true },
+    { pubkey: protocolCollateralVaultPDA, isSigner: false, isWritable: true },
+    { pubkey: totalCollateralAmountPDA, isSigner: false, isWritable: true },
+    { pubkey: userDebtAmountPDA, isSigner: false, isWritable: true },
+    { pubkey: userCollateralAmountPDA, isSigner: false, isWritable: true },
+    { pubkey: liquidityThresholdPDA, isSigner: false, isWritable: true },
+    { pubkey: userCollateralATA, isSigner: false, isWritable: true },
+    { pubkey: oracleProgramId, isSigner: false, isWritable: true },
+    { pubkey: oracleState, isSigner: false, isWritable: true },
+    { pubkey: SOL_PYTH_PRICE_FEED, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+  ];
+
+  const instruction = new TransactionInstruction({
+    keys: accountMetas,
+    programId: PROTOCOL_PROGRAM_ID,
+    data,
+  });
+
+  console.log('✅ liquidate_trove instruction built');
+  return { instruction };
+}
+
 export async function buildWithdrawLiquidationGainsInstruction(
   userPublicKey: PublicKey,
   collateralDenom: string,
