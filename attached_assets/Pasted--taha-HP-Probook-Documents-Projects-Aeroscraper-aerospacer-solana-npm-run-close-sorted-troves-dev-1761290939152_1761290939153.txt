@@ -1,0 +1,151 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ npm run close-sorted-troves-devnet
+
+> close-sorted-troves-devnet
+> ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/close-sorted-troves-devnet.ts
+
+🧹 Closing corrupted SortedTrovesState on devnet...
+Admin: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar
+Protocol: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+
+State PDA: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+SortedTrovesState PDA: EJRheRBBRhnZ2xoXb5DwL9WxBfkjxy3CyGeNhjBgHyRy
+
+Current SortedTrovesState:
+  Size: 3
+  Head: BAYrNA95bLF4ktQCroxkW68L7C4rJfaDCiFGAnpPyHWq
+  Tail: Cm6dZEhTaKRu9FWwqm3sSsUT4Tp6H1g6a1ebbVSGRzys
+
+⚠️  WARNING: This will close the SortedTrovesState account!
+   - All trove ordering will be reset
+   - Next openTrove will create fresh state
+   - Existing troves won't be in the sorted list until they call openTrove again
+
+   Press Ctrl+C to cancel, or waiting 3 seconds to proceed...
+
+📤 Calling reset_sorted_troves instruction...
+✅ Success! Transaction signature: 4Ej334eBtc6qvNyTeXP3WsdqFLLziVHnrEsipnUbqZSj2FnFdXNbQvkb9V4Sfk6JDKGj3Fti7YTzzvfgLBz5Wxyr
+
+SortedTrovesState account closed successfully!
+✅ Next openTrove call will create fresh, empty sorted list
+
+💡 You can now run your tests:
+   ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+   ANCHOR_WALLET=~/.config/solana/id.json \
+   npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-core.ts'
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com    ANCHOR_WALLET=~/.config/solana/id.json    npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-fees-integration.ts'
+(node:14376) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-fees-integration.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Protocol Contract - Fees Integration Tests
+
+🔧 Setting up test environment for fee integration tests...
+🚀 Setting up test environment for devnet...
+✅ Using existing stablecoin mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Using existing devnet collateral mint from vault: Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz
+✅ Oracle already initialized
+✅ Fees already initialized
+✅ Protocol already initialized
+✅ FeeAddress1 token account already exists: GqY4SbdRG4vudGatbLN4d6yfnXXPzPrHDJBKWbgonxQq
+✅ FeeAddress2 token account already exists: Hn5V9cYLmZDPwXQcp4vc6VMDzVatpBZBmmwNGXDNj6Cq
+✅ Test environment setup complete
+  Protocol State: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+  Fee State: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  Stablecoin Mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Test user created: D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi
+    Test 8.1: Fee Distribution via CPI
+
+📋 Testing fee distribution CPI...
+  ✅ Fees program: AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ
+  ✅ Protocol state references correct fee_state_addr: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  ✅ Fee state initialized:
+    - Total fees collected: 504450000000000000
+    - Stake enabled: false
+  📝 Opening trove to test CPI fee distribution...
+SortedTrovesState account doesn't exist yet
+  ✅ Fee state after trove opening:
+    - Total fees collected: 554450000000000000
+✅ Fee CPI functional test passed - fees distributed successfully
+      ✔ Should distribute fees through CPI call (8036ms)
+    Test 8.2: Protocol Fee Calculation (5%)
+
+📋 Testing fee calculation...
+  Loan amount: 1000000000000000000 aUSD
+  Expected fee (5%): 50000000000000000 aUSD
+SortedTrovesState has 1 troves, head: D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi
+Processing all 1 troves for proper sorted troves validation
+✓ Processed trove D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi, next: null
+✅ Fetched 1 valid trove accounts for traversal
+  Actual fees collected: 50000000000000000 aUSD
+  Expected fee: 50000000000000000 aUSD
+✅ Fee calculation verified - 5% protocol fee calculated correctly
+      ✔ Should calculate 5% protocol fee correctly (14452ms)
+    Test 8.3: Stability Pool Mode Distribution
+
+📋 Testing stability pool mode...
+  🔄 Setting stake contract address...
+  🔄 Toggling stake contract to ENABLE stability pool mode...
+  ✅ Stability pool mode is ENABLED
+  100% of fees should go to stability pool
+SortedTrovesState has 2 troves, head: D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi
+Processing all 2 troves for proper sorted troves validation
+✓ Processed trove D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi, next: BGWywYvYFkMLbQZ9mb9oR8w6x8LUisdBc1zUj8BeLnW1
+✓ Processed trove BGWywYvYFkMLbQZ9mb9oR8w6x8LUisdBc1zUj8BeLnW1, next: null
+✅ Fetched 2 valid trove accounts for traversal
+  Stability pool balance increase: 50000000000000000 aUSD
+  Expected fee (5%): 50000000000000000 aUSD
+  🔄 Restoring original fee distribution mode...
+✅ Stability pool distribution verified
+      ✔ Should distribute fees to stability pool when enabled (29792ms)
+    Test 8.4: Treasury Mode Distribution
+
+📋 Testing treasury mode...
+  ✅ Treasury mode is ENABLED
+  50% to fee_address_1, 50% to fee_address_2
+SortedTrovesState has 3 troves, head: D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi
+Processing all 3 troves for proper sorted troves validation
+✓ Processed trove D6SXExNwDj8AjWF3wPbqiJcAsByPZEwZM3c6rFhirnzi, next: HCwVC9DU1fGwzfvTCb5wqqGBVHX5bnzHWvkUTvHNryXk
+✓ Processed trove HCwVC9DU1fGwzfvTCb5wqqGBVHX5bnzHWvkUTvHNryXk, next: BGWywYvYFkMLbQZ9mb9oR8w6x8LUisdBc1zUj8BeLnW1
+✓ Processed trove BGWywYvYFkMLbQZ9mb9oR8w6x8LUisdBc1zUj8BeLnW1, next: null
+✅ Fetched 3 valid trove accounts for traversal
+      1) Should distribute fees 50/50 to treasury addresses
+    Test 8.5: Fee State Validation
+
+📋 Testing fee state validation...
+  Protocol state fee_state_addr: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  Expected fee state PDA: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  ✅ Fee state PDA is validated in protocol state
+  ✅ Prevents fake fee contract injection attacks
+✅ Fee state validation verified
+      ✔ Should validate fee state PDA in CPI (473ms)
+    Test 8.6: Fee Account Owner Validation
+
+📋 Testing account ownership...
+  ✅ Fee distribution validates payer owns payer_token_account
+  ✅ Prevents unauthorized fund draining
+  ✅ Token account mint validation enforced
+✅ Ownership validation verified
+      ✔ Should validate fee account ownership
+
+
+  5 passing (1m)
+  1 failing
+
+  1) Protocol Contract - Fees Integration Tests
+       Test 8.4: Treasury Mode Distribution
+         Should distribute fees 50/50 to treasury addresses:
+     Error: Transaction too large: 1287 > 1232
+      at invariant (node_modules/@solana/web3.js/src/utils/assert.ts:6:11)
+      at Transaction._serialize (node_modules/@solana/web3.js/src/transaction/legacy.ts:860:5)
+      at Transaction.serialize (node_modules/@solana/web3.js/src/transaction/legacy.ts:832:17)
+      at AnchorProvider.sendAndConfirm (node_modules/@coral-xyz/anchor/src/provider.ts:164:22)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:29:16)
+
+
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 
