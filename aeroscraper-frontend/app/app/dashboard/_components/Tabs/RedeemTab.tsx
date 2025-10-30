@@ -22,6 +22,7 @@ import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { useProtocolState } from "@/hooks/useProtocolState";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { fetchAllTroves } from "@/lib/solana/fetchTroves";
+import { validateSolBalance, validateAusdBalance } from "@/lib/solana/validateBalances";
 
 const RedeemTab: FC = () => {
   const { address, isConnected } = useAppKitAccount();
@@ -164,6 +165,19 @@ const RedeemTab: FC = () => {
 
   const handleRedeem = async () => {
     try {
+      if (!address || !connection || !protocolState) {
+        throw new Error("Wallet not connected or protocol state not loaded");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
+      // Convert redeemAmount to smallest unit (18 decimals)
+      const redeemAmountInSmallestUnit = BigInt(Math.floor(redeemAmount * 1e18));
+
+      // Validate balances before transaction
+      await validateSolBalance(connection, userPublicKey);
+      await validateAusdBalance(connection, userPublicKey, protocolState.stablecoinMint, redeemAmountInSmallestUnit);
+
       const signature = await redeem({ redeemAmount });
 
       addNotification({

@@ -29,6 +29,7 @@ import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { PublicKey } from "@solana/web3.js";
 import { useProtocolState } from "@/hooks/useProtocolState";
 import { getPrice as getOraclePrice } from "@/lib/solana/getSolPriceInUsd";
+import { validateSolBalance, validateCollateralBalance, validateAusdBalance } from "@/lib/solana/validateBalances";
 
 // Preload dynamic imports for better performance
 let splTokenLoaded = false;
@@ -452,10 +453,20 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
 
   const handleOpenTrove = async () => {
     try {
+      if (!address || !connection || !protocolState) {
+        throw new Error("Wallet not connected or protocol state not loaded");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert SOL to lamports (9 decimals)
       const collateralInLamports = openTroveAmount * 1_000_000_000;
       // Convert aUSD to base units (18 decimals)
       const loanAmountStr = (borrowAmount * Math.pow(10, 18)).toString();
+
+      // Validate balances before transaction
+      await validateSolBalance(connection, userPublicKey);
+      await validateCollateralBalance(connection, userPublicKey, protocolState.collateralMint, collateralInLamports);
 
       const signature = await openTrove({
         collateralAmount: collateralInLamports,
@@ -487,8 +498,18 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
 
   const handleAddCollateral = async () => {
     try {
+      if (!address || !connection || !protocolState) {
+        throw new Error("Wallet not connected or protocol state not loaded");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert SOL to lamports (9 decimals)
       const collateralInLamports = collateralAmount * 1_000_000_000;
+
+      // Validate balances before transaction
+      await validateSolBalance(connection, userPublicKey);
+      await validateCollateralBalance(connection, userPublicKey, protocolState.collateralMint, collateralInLamports);
 
       const signature = await addCollateral({
         collateralAmount: collateralInLamports,
@@ -517,8 +538,17 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
 
   const handleRemoveCollateral = async () => {
     try {
+      if (!address || !connection) {
+        throw new Error("Wallet not connected");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert SOL to lamports (9 decimals)
       const collateralInLamports = collateralAmount * 1_000_000_000;
+
+      // Validate SOL balance for transaction fees
+      await validateSolBalance(connection, userPublicKey);
 
       const signature = await removeCollateral({
         collateralAmount: collateralInLamports,
@@ -547,8 +577,17 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
 
   const handleBorrowLoan = async () => {
     try {
+      if (!address || !connection) {
+        throw new Error("Wallet not connected");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert AUSD to smallest unit (18 decimals)
       const loanInSmallestUnit = Math.floor(borrowingAmount * 1e18);
+
+      // Validate SOL balance for transaction fees
+      await validateSolBalance(connection, userPublicKey);
 
       const signature = await borrowLoan({
         loanAmount: loanInSmallestUnit,
@@ -577,8 +616,18 @@ const TroveTab: FC<Props> = ({ pageData, getPageData, basePrice }) => {
 
   const handleRepayLoan = async () => {
     try {
+      if (!address || !connection || !protocolState) {
+        throw new Error("Wallet not connected or protocol state not loaded");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert AUSD to smallest unit (18 decimals)
       const repayInSmallestUnit = Math.floor(borrowingAmount * 1e18);
+
+      // Validate balances before transaction
+      await validateSolBalance(connection, userPublicKey);
+      await validateAusdBalance(connection, userPublicKey, protocolState.stablecoinMint, repayInSmallestUnit);
 
       const signature = await repayLoan({
         repayAmount: repayInSmallestUnit,
