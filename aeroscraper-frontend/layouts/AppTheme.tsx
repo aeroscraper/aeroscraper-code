@@ -34,6 +34,7 @@ import { BaseCoinByChainName } from "@/constants/chainConstants";
 import { CollateralAsset } from "@/types/types";
 import { DefaultAssetByChainName } from "@/constants/assetConstants";
 import { useSolanaAdapter } from "@/hooks/useSolanaAdapter";
+import RequestCollateralButton from "@/components/Buttons/RequestCollateralButton";
 
 const AppTheme = () => {
   const { walletInfo, address, isWalletConnected, username } =
@@ -279,6 +280,9 @@ const AppTheme = () => {
               </div>
               <div className="md:flex hidden">
                 <NotificationDropdown />
+              </div>
+              <div className="md:flex hidden items-center ml-4 gap-2">
+                <RequestCollateralButton />
               </div>
               <button
                 className="flex ml-12 gap-2 items-center hover:blur-[1px] transition-all duration-300"

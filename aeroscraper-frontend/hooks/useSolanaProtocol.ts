@@ -210,27 +210,7 @@ export function useSolanaProtocol() {
             return signature;
         } catch (err: any) {
             // Enhanced error logging for debugging
-            console.error('❌ FULL ERROR DETAILS:');
-            console.error('Error object:', err);
-            console.error('Error code:', err.code);
-            console.error('Error name:', err.name);
-            console.error('Error message:', err.message);
-            console.error('Stack trace:', err.stack);
-
-            // Try to extract program logs
-            if (err.logs && Array.isArray(err.logs)) {
-                console.error('📋 All logs:', err.logs);
-                const programLogs = err.logs.filter((log: string) => log.includes('Program'));
-                console.error('🔍 Program logs:', programLogs);
-                const errorLogs = err.logs.filter((log: string) => log.includes('Error') || log.includes('failed'));
-                console.error('🚨 Error logs:', errorLogs);
-            }
-
-            // Check for transaction errors
-            if (err.transaction) {
-                console.error('💾 Transaction:', err.transaction);
-            }
-
+            console.error(' 🚨 Failed to open trove: ', err);
             const errorMessage = err.message || 'Failed to open trove';
             setError(errorMessage);
 
