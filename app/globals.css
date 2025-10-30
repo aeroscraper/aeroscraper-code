@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-color: #1A0B1C;
+  --text-color: #F7F7FF;
+}
+
+body {
+  color: rgb(var(--text-color));
+  background: var(--background-color);
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+::-webkit-scrollbar {
+  width: .2em;
+}
+
+::-webkit-scrollbar-track {
+  background: #6F6F73;
+  border-radius: 100vw;
+}
+
+::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 100vw;
+  margin-block: 0.2em;
+}
+
+@layer components{
+  .gradient-background {
+    @apply  tertiary-gradient transition-all delay-300
+  }
+  .xion .ui-backdrop-blur-lg {
+    
+    @apply  !bg-black/10 !backdrop-blur-sm
+  }
+  .xion .ui-bg-modal-overlay {
+    background-image: none !important;
+    @apply  !bg-black/10 
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    stopColor: #56235C;
+  }
+  25% {
+    stopColor: #D43752;
+  }
+  50% {
+    stopColor: #E4462D;
+  }
+  75% {
+    stopColor: #F8B810;
+  }
+  100% {
+    stopColor: #D43752;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    --Gradient: linear-gradient(90deg, #D43752 0%, #E4462D 43.78%, #F8B810 150.15%);
+    background: var(--Gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;  
+  }
+}
+
+.shape-animation stop:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.shape-animation stop:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.shape-animation stop:nth-child(3) {
+  animation-delay: 0.9s;
+}
+
+.shape-animation stop:nth-child(4) {
+  animation-delay: 1.2s;
+}
+
+.shape-animation stop:nth-child(5) {
+  animation-delay: 1.5s;
+}
+
+.shape-animation stop:nth-child(6) {
+  animation-delay: 1.8s
+}
+
+.shape-animation stop{
+  animation: gradient-animation 2.2s ease-in-out infinite alternate
+}
+
+.main-gradient {
+  background: linear-gradient(90deg, #56235C 0%, #D43752 25.18%, #E4462D 75.44%, #F8B810 100%);
+}
+
+.success-gradient {
+  background: linear-gradient(90deg, #29499C 0%, #56235C 99.62%);
+}
+
+.error-gradient {
+  background: linear-gradient(90deg, #29499C 0%, #56235C 0%, #D43752 0%, #E4462D 100%);
+}
+
+.secondary-gradient {
+  background: linear-gradient(90deg, #E85A29 0%, #F8B810 100%);
+}
+
+.tertiary-gradient {
+  background: linear-gradient(90deg, #D43752 0%, #E4462D 56.53%, #F8B810 181.25%);
+}
+
+.notification-dropdown-gradient {
+  background: linear-gradient(90deg, #fff 0%, #ffffff33  90%);
+}
+
+.loading-gradient {
+  background: linear-gradient(90deg, rgba(152, 147, 152, 0.75) 0%, rgba(255, 255, 255, 0.00) 100%);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+@keyframes loader {
+  0% {
+    stroke-dasharray: 84.0955352783 104.0955352783;
+  }
+
+  100% {
+    stroke-dasharray: 178.19107055664062 10;
+  }
+}
+
+@keyframes loader2 {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -188.19107055664062;
+  }
+}
+
+.loading-circle {
+  animation: 1.5s loader ease infinite alternate, 1s loader2 linear infinite;
+  stroke: url(#Gradient);
+  stroke-linecap: round;
+  stroke-width: 5;
+  stroke-dasharray: 94.0955352783 94.0955352783;
+  stroke-dashoffset: 0;
+}
+
+.injective-background {
+background: radial-gradient(72.72% 72.72% at 38.3% 0%, rgba(92, 92, 255, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #1A0B1C !important;
+background-blend-mode: multiply, normal, normal;
+}
+
+.gradient-checkbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.gradient-checkbox input:checked + .checkbox-label::before {
+  content: '';
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(90deg, #D43752 0%, #E4462D 56.53%, #F8B810 181.25%);
+  border-radius: 0.375rem;
+  margin-right: 0.5rem;
+}
+
+.confirmBtn {
+  background: var(--Gadient, linear-gradient(90deg, #D43752 0%, #E4462D 43.78%, #F8B810 150.15%)) !important;
+} 
+
