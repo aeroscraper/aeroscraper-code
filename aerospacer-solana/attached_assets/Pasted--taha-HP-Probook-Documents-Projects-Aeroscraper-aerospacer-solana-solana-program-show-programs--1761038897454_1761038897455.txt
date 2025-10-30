@@ -1,0 +1,156 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ solana program show --programs
+
+Program Id                                   | Slot      | Authority                                    | Balance
+8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M | 416070931 | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 2.15947224 SOL
+AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ | 415917016 | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 1.95696408 SOL
+9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ | 416071002 | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 7.50085464 SOL
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ solana program show --buffers --url devnet
+
+Buffer Address                               | Authority                                    | Balance
+2rZR9XNYhj5WQGvPLPybHgKz9L6zbmBr7CuvHGoU7gmu | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 7.43827032 SOL
+B6n5BH238ksymyKPhz1F3VesW8NgpDfRqvQWfgDZ9sYJ | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 1.95696408 SOL
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ solana program close --buffers --url devnet
+
+Buffer Address                               | Authority                                    | Balance
+2rZR9XNYhj5WQGvPLPybHgKz9L6zbmBr7CuvHGoU7gmu | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 7.43827032 SOL
+B6n5BH238ksymyKPhz1F3VesW8NgpDfRqvQWfgDZ9sYJ | 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar | 1.95696408 SOL
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ solana program close --buffers --url devnet
+
+Buffer Address                               | Authority                                    | Balance
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ anchor build
+   Compiling aerospacer-oracle v0.1.0 (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/programs/aerospacer-oracle)
+warning: use of deprecated method `anchor_lang::prelude::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+  --> programs/aerospacer-oracle/src/lib.rs:21:1
+   |
+21 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused variable: `clock`
+  --> programs/aerospacer-oracle/src/instructions/get_price.rs:29:9
+   |
+29 |     let clock = &ctx.accounts.clock;
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_clock`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `clock`
+  --> programs/aerospacer-oracle/src/instructions/get_all_prices.rs:26:9
+   |
+26 |     let clock = &ctx.accounts.clock;
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_clock`
+
+warning: unused variable: `collateral_data`
+  --> programs/aerospacer-oracle/src/instructions/update_pyth_price.rs:38:9
+   |
+38 |     let collateral_data = state.collateral_data
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_collateral_data`
+
+warning: `aerospacer-oracle` (lib) generated 4 warnings
+    Finished `release` profile [optimized] target(s) in 2.69s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/debug/deps/aerospacer_oracle-229a9b501a96c94f)
+   Compiling aerospacer-oracle v0.1.0 (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/programs/aerospacer-oracle)
+   Compiling aerospacer-fees v0.1.0 (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/programs/aerospacer-fees)
+warning: use of deprecated method `anchor_lang::prelude::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+  --> programs/aerospacer-fees/src/lib.rs:14:1
+   |
+14 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `anchor_lang::prelude::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+  --> programs/aerospacer-oracle/src/lib.rs:21:1
+   |
+21 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused variable: `clock`
+  --> programs/aerospacer-oracle/src/instructions/get_price.rs:29:9
+   |
+29 |     let clock = &ctx.accounts.clock;
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_clock`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `clock`
+  --> programs/aerospacer-oracle/src/instructions/get_all_prices.rs:26:9
+   |
+26 |     let clock = &ctx.accounts.clock;
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_clock`
+
+warning: unused variable: `collateral_data`
+  --> programs/aerospacer-oracle/src/instructions/update_pyth_price.rs:38:9
+   |
+38 |     let collateral_data = state.collateral_data
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_collateral_data`
+
+warning: `aerospacer-fees` (lib) generated 1 warning
+warning: `aerospacer-oracle` (lib) generated 4 warnings
+   Compiling aerospacer-protocol v0.1.0 (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/programs/aerospacer-protocol)
+warning: use of deprecated method `anchor_lang::prelude::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+  --> programs/aerospacer-protocol/src/lib.rs:26:1
+   |
+26 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `aerospacer-protocol` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 11.98s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/debug/deps/aerospacer_protocol-889ac5130c6fb2da)
+   Compiling aerospacer-fees v0.1.0 (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/programs/aerospacer-fees)
+warning: use of deprecated method `anchor_lang::prelude::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+  --> programs/aerospacer-fees/src/lib.rs:14:1
+   |
+14 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `aerospacer-fees` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 1.88s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/debug/deps/aerospacer_fees-e8568a44fae296dc)
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ anchor deploy
+Deploying cluster: https://api.devnet.solana.com
+Upgrade authority: /home/taha/.config/solana/id.json
+Deploying program "aerospacer_oracle"...
+Program path: /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/deploy/aerospacer_oracle.so...
+Program Id: 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M
+
+Signature: 66m368ZfuSuUfpQbNgJQbexNizVPpDGYUVj8Gwuykr3wxJvr88NwGL9kPX4ff6YxXapmunQMjJGcYqXPBkdzLSWf
+
+Deploying program "aerospacer_protocol"...
+Program path: /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/deploy/aerospacer_protocol.so...
+Program Id: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+
+Signature: 5jsQot4XnSTHG8tAM6ZQaPJWw3STkiKRUKWPpZRXvEc6rBR7sxU8nLmPWsFDUgax2qpXpikHpp6DYMMRjWL9xkHj
+
+Deploying program "aerospacer_fees"...
+Program path: /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/deploy/aerospacer_fees.so...
+Error: 73 write transactions failed
+There was a problem deploying: Output { status: ExitStatus(unix_wait_status(256)), stdout: "", stderr: "" }.
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ anchor deploy
+Deploying cluster: https://api.devnet.solana.com
+Upgrade authority: /home/taha/.config/solana/id.json
+Deploying program "aerospacer_oracle"...
+Program path: /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/target/deploy/aerospacer_oracle.so...
+Error: Buffer account data size (281037) is smaller than the minimum size (310133)
+There was a problem deploying: Output { status: ExitStatus(unix_wait_status(256)), stdout: "", stderr: "" }.
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 

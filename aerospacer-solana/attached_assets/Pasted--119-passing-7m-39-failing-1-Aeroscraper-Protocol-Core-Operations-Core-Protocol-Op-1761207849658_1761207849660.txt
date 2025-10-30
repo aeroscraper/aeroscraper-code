@@ -1,0 +1,497 @@
+
+
+  119 passing (7m)
+  39 failing
+
+  1) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should open a trove successfully:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: 9Nh2h64Ug9esWhrCxmRYKJ38yJQjSiCSdFjCFaiNNFFX, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 13608 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  2) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should open a second trove for user2:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: FvRbR4tTAQS14BciwNQdrB2fsf5pqb8CFKy4wHCisUXE, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 13608 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  3) Protocol Contract - CPI Security Tests
+       Test 9.1: Reject Fake Oracle Program
+         Should reject fake oracle program in CPI calls:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to include 'Unauthorized'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:84:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  4) Protocol Contract - CPI Security Tests
+       Test 9.2: Reject Fake Fee Program
+         Should reject fake fee program in CPI calls:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to include 'Unauthorized'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:138:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  5) Protocol Contract - CPI Security Tests
+       Test 9.3: Reject Fake Oracle State Account
+         Should reject fake oracle state account:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to include 'Unauthorized'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:192:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  6) Protocol Contract - CPI Security Tests
+       Test 9.4: Reject Fake Fee State Account
+         Should reject fake fee state account:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to include 'Unauthorized'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:246:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  7) Protocol Contract - CPI Security Tests
+       Test 9.5: Validate PDA Seeds for Protocol Vaults
+         Should only accept correctly derived protocol vaults:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /seeds constraint was violated|ConstraintSeeds/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:300:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  8) Protocol Contract - CPI Security Tests
+       Test 9.6: Validate User Token Account Ownership
+         Should reject token accounts not owned by user:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /Unauthorized|ConstraintRaw/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:358:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  9) Protocol Contract - CPI Security Tests
+       Test 9.7: Verify State Account Constraints
+         Should validate mint addresses against state:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /InvalidMint|ConstraintRaw/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-cpi-security.ts:411:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-cpi-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  10) Protocol Contract - Critical Instructions (Full Functional Tests)
+       Test 1: query_liquidatable_troves (Full Functional Test)
+         Should query liquidatable troves and return valid data:
+     Error: byte array longer than desired length
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN.toArrayLike (node_modules/bn.js/lib/bn.js:578:5)
+      at BNLayout.encode (node_modules/@coral-xyz/borsh/src/index.ts:62:11)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at BorshInstructionCoder.encode (node_modules/@coral-xyz/anchor/src/coder/borsh/instruction.ts:53:32)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/index.ts:62:43
+      at ix (node_modules/@coral-xyz/anchor/src/program/namespace/instruction.ts:60:15)
+      at txFn (node_modules/@coral-xyz/anchor/src/program/namespace/transaction.ts:24:14)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:21:18)
+      at MethodsBuilder.rpc (node_modules/@coral-xyz/anchor/src/program/namespace/methods.ts:434:17)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  11) Protocol Contract - Critical Instructions (Full Functional Tests)
+       Test 2: liquidate_troves (Functional Test - Instruction Structure Validation)
+         Should execute liquidate_troves instruction with proper account structure:
+     Error: byte array longer than desired length
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN.toArrayLike (node_modules/bn.js/lib/bn.js:578:5)
+      at BNLayout.encode (node_modules/@coral-xyz/borsh/src/index.ts:62:11)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at BorshInstructionCoder.encode (node_modules/@coral-xyz/anchor/src/coder/borsh/instruction.ts:53:32)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/index.ts:62:43
+      at ix (node_modules/@coral-xyz/anchor/src/program/namespace/instruction.ts:60:15)
+      at txFn (node_modules/@coral-xyz/anchor/src/program/namespace/transaction.ts:24:14)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:21:18)
+      at MethodsBuilder.rpc (node_modules/@coral-xyz/anchor/src/program/namespace/methods.ts:434:17)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  12) Protocol Contract - Critical Instructions (Full Functional Tests)
+       Test 3: redeem (Full Functional Test with Real Redemption)
+         Should redeem aUSD for collateral from lowest ICR troves:
+     Error: byte array longer than desired length
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN.toArrayLike (node_modules/bn.js/lib/bn.js:578:5)
+      at BNLayout.encode (node_modules/@coral-xyz/borsh/src/index.ts:62:11)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at Structure.encode (node_modules/buffer-layout/lib/Layout.js:1263:26)
+      at BorshInstructionCoder.encode (node_modules/@coral-xyz/anchor/src/coder/borsh/instruction.ts:53:32)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/index.ts:62:43
+      at ix (node_modules/@coral-xyz/anchor/src/program/namespace/instruction.ts:60:15)
+      at txFn (node_modules/@coral-xyz/anchor/src/program/namespace/transaction.ts:24:14)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:21:18)
+      at MethodsBuilder.rpc (node_modules/@coral-xyz/anchor/src/program/namespace/methods.ts:434:17)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  13) Protocol Contract - Error Coverage Tests
+       Error 2: TroveExists
+         Should trigger TroveExists error:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Transfer: insufficient lamports 1000000, need 1280640",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x1",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 19741 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x1"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  14) Protocol Contract - Error Coverage Tests
+       Error 3: TroveDoesNotExist
+         Should trigger TroveDoesNotExist error:
+     AssertionError: expected 'AnchorError occurred. Error Code: Ins…' to match /not found|does not exist|AccountNotInitialized/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-error-coverage.ts:127:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-error-coverage.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  15) Protocol Contract - Error Coverage Tests
+       Error 6: InvalidAmount
+         Should trigger InvalidAmount error:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /InvalidAmount|CollateralBelowMinimum/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-error-coverage.ts:194:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-error-coverage.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  16) Protocol Contract - Error Coverage Tests
+       Error 7: CollateralBelowMinimum
+         Should trigger CollateralBelowMinimum error:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /CollateralBelowMinimum|InvalidAmount/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-error-coverage.ts:245:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-error-coverage.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  17) Protocol Contract - Error Coverage Tests
+       Error 8: InsufficientCollateral
+         Should trigger InsufficientCollateral error:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Transfer: insufficient lamports 1000000, need 1280640",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x1",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 13741 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x1"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  18) Protocol Contract - Fees Integration Tests
+       Test 8.1: Fee Distribution via CPI
+         Should distribute fees through CPI call:
+     Error: Invalid account discriminator
+      at BorshAccountsCoder.decode (node_modules/@coral-xyz/anchor/src/coder/borsh/accounts.ts:66:13)
+      at AccountClient.fetchNullableAndContext (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:154:34)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at AccountClient.fetchNullable (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:133:22)
+
+  19) Protocol Contract - Initialization Tests
+       Test 1.4: Validate Default Parameters
+         Should initialize with correct default values:
+
+      Total debt should be 0
+      + expected - actual
+
+      -82649999946000000
+      +0
+      
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-initialization.ts:239:14
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-initialization.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  20) Protocol Contract - Oracle Integration Tests
+       Test 7.1: Get Price via CPI Call
+         Should query oracle price through CPI:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Transfer: insufficient lamports 1000000, need 1280640",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x1",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 18241 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x1"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  21) Protocol Contract - Oracle Integration Tests
+       Test 7.2: ICR Calculation with Real Pyth Prices
+         Should calculate ICR using real-time Pyth prices:
+     Error: Account does not exist or has no data 8Z93FaALrYLbUGKWATmW99mv9ckz7X9vCbUcSvaQGah5
+      at AccountClient.fetch (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:168:13)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  22) Protocol Contract - Oracle Integration Tests
+       Test 7.3: Liquidation Threshold with Oracle Prices
+         Should determine liquidation threshold from oracle:
+     Error: Account does not exist or has no data 8Z93FaALrYLbUGKWATmW99mv9ckz7X9vCbUcSvaQGah5
+      at AccountClient.fetch (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:168:13)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  23) Protocol Contract - Oracle Integration Tests
+       Test 7.8: Price Decimal Conversion
+         Should handle different decimal places:
+     TypeError: Cannot read properties of undefined (reading 'fetch')
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-oracle-integration.ts:156:71
+      at Generator.next (<anonymous>)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-oracle-integration.ts:8:71
+      at new Promise (<anonymous>)
+      at __awaiter (tests/protocol-oracle-integration.ts:4:12)
+      at Context.<anonymous> (tests/protocol-oracle-integration.ts:151:61)
+      at processImmediate (node:internal/timers:485:21)
+
+  24) Protocol Contract - Security Tests
+       Test 10.3: Minimum Collateral Ratio Enforcement
+         Should enforce 115% MCR:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to match /InvalidCollateralRatio|InsufficientCollateral/
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-security.ts:134:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  25) Protocol Contract - Security Tests
+       Test 10.4: Minimum Loan Amount Enforcement
+         Should enforce minimum loan of 1 aUSD:
+     AssertionError: expected 'Error: Account `stabilityPoolTokenAcc…' to include 'LoanAmountBelowMinimum'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-security.ts:184:35
+      at Generator.throw (<anonymous>)
+      at rejected (tests/protocol-security.ts:39:65)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  26) Protocol Contract - Security Tests
+       Test 10.6: Trove Ownership Validation
+         Should validate trove ownership:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Transfer: insufficient lamports 1000000, need 1280640",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x1",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 13741 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x1"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  27) Protocol Contract - Stability Pool Tests
+       "before all" hook in "Protocol Contract - Stability Pool Tests":
+     Error: Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0xe. 
+Logs: 
+[
+  "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]",
+  "Program log: Instruction: MintTo",
+  "Program log: Error: Operation overflowed",
+  "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4311 of 200000 compute units",
+  "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA failed: custom program error: 0xe"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+      at Connection.sendEncodedTransaction (node_modules/@solana/web3.js/src/connection.ts:6053:13)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at Connection.sendRawTransaction (node_modules/@solana/web3.js/src/connection.ts:6009:20)
+      at Connection.sendTransaction (node_modules/@solana/web3.js/src/connection.ts:5997:12)
+      at sendAndConfirmTransaction (node_modules/@solana/web3.js/src/utils/send-and-confirm-transaction.ts:36:21)
+
+  28) Protocol Contract - Trove Management Tests
+       Test 2.1: Open Trove with Valid Collateral
+         Should successfully open trove with sufficient collateral:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:221:26
+      at Generator.next (<anonymous>)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:41:71
+      at new Promise (<anonymous>)
+      at __awaiter (tests/protocol-trove-management.ts:37:12)
+      at Context.<anonymous> (tests/protocol-trove-management.ts:200:80)
+      at processImmediate (node:internal/timers:485:21)
+
+  29) Protocol Contract - Trove Management Tests
+       Test 2.2: Reject Duplicate Trove Opening
+         Should fail when user tries to open second trove:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:309:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  30) Protocol Contract - Trove Management Tests
+       Test 2.3: Add Collateral to Existing Trove
+         Should successfully add collateral:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:422:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  31) Protocol Contract - Trove Management Tests
+       Test 2.4: Borrow Loan from Trove
+         Should successfully borrow additional loan:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:541:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  32) Protocol Contract - Trove Management Tests
+       Test 2.5: Repay Loan Partially
+         Should successfully repay part of the loan:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:651:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  33) Protocol Contract - Trove Management Tests
+       Test 2.6: Repay Loan Fully
+         Should successfully repay all debt:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:763:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  34) Protocol Contract - Trove Management Tests
+       Test 2.7: Close Trove
+         Should successfully close trove after full repayment:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:868:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  35) Protocol Contract - Trove Management Tests
+       Test 2.8: Remove Collateral (Maintaining MCR)
+         Should successfully remove collateral while maintaining MCR:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:989:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  36) Protocol Contract - Trove Management Tests
+       Test 2.9: Reject Collateral Removal Below MCR
+         Should fail when removing collateral would violate MCR:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1109:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  37) Protocol Contract - Trove Management Tests
+       Test 2.10: Reject Borrow Below Minimum Loan Amount
+         Should fail when borrowing below minimum loan amount:
+     AssertionError: expected 'Assertion failed' to include 'LoanAmountBelowMinimum'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1244:34
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  38) Protocol Contract - Trove Management Tests
+       Test 2.11: Reject Close Trove with Outstanding Debt
+         Should fail when trying to close trove with debt:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1308:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  39) Protocol Contract - Trove Management Tests
+       Test 2.12: Open Trove with Multiple Collateral Types
+         Should support multiple collateral denominations:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1420:23
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+
