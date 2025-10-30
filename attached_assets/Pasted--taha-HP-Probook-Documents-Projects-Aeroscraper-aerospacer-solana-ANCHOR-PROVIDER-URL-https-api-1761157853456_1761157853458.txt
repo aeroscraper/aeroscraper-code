@@ -1,0 +1,415 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-node scripts/close-specific-nodes-devnet.ts
+🧹 Closing specific Node accounts from error logs...
+Admin: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar
+Protocol: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+
+State PDA: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+
+
+Checking Node at ELpjGAaB9P6eLVe8aNnCaMzX6t6RoSyEEeRDyFn6R6Rb...
+  ⚠️  Node exists with 56 bytes
+  Owner: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+  ⚠️  Failed to decode/close Node: Invalid account discriminator
+
+Checking Node at EsjHpf14Yu6aYMsgUSUAyyDRydTJRcuPZg8YxdX2BMXc...
+  ⚠️  Node exists with 56 bytes
+  Owner: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+  ⚠️  Failed to decode/close Node: Invalid account discriminator
+
+✅ Cleanup attempt complete!
+
+💡 You can now run your tests:
+   ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+   ANCHOR_WALLET=~/.config/solana/id.json \
+   npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-core.ts'
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-node scripts/close-user-nodes-devnet.ts
+🧹 Closing corrupted user Node accounts on devnet...
+Admin: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar
+Protocol: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+
+State PDA: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+
+Checking Node for user 7d4AG2fCbYW9gdmdUe9afUX69UknDmh9MXVXapRt7y56...
+  Node PDA: 8T2yoBfk4ppgnggV9uUmREeiTPSKDXq1ZBV6b9VadLqd
+  ✓ Node doesn't exist (already clean)
+
+Checking Node for user HdvpoRLcVAtNQgEeH62ypLycCuncGvWCn4DVA8Xgq8FY...
+  Node PDA: 8uFgKwmMDXhqtWHA31o7Dx5YVwZqQJBS8JKTPyuRjJWU
+  ✓ Node doesn't exist (already clean)
+
+✅ Node cleanup complete!
+
+💡 You can now run your tests:
+   ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+   ANCHOR_WALLET=~/.config/solana/id.json \
+   npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-core.ts'
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-node scripts/close-sorted-troves-devnet.ts
+🧹 Closing corrupted SortedTrovesState on devnet...
+Admin: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar
+Protocol: 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ
+
+State PDA: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+SortedTrovesState PDA: EJRheRBBRhnZ2xoXb5DwL9WxBfkjxy3CyGeNhjBgHyRy
+
+⚠️  SortedTrovesState doesn't exist or can't be fetched
+   Nothing to clean up - ready for fresh initialization
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+   ANCHOR_WALLET=~/.config/solana/id.json \
+   npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-core.ts'
+USER1: 7d4AG2fCbYW9gdmdUe9afUX69UknDmh9MXVXapRt7y56
+USER2: HdvpoRLcVAtNQgEeH62ypLycCuncGvWCn4DVA8Xgq8FY
+(node:1424349) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-core.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Aeroscraper Protocol Core Operations
+Using existing stablecoin mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Using existing devnet collateral mint from vault: Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz
+Creating admin stablecoin account...
+Admin public key: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar
+Stablecoin mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+Admin stablecoin account already exists, skipping creation
+Admin collateral account already exists
+Creating user1 stablecoin account...
+User1 stablecoin account already exists
+User1 collateral account already exists
+Creating user2 stablecoin account...
+User2 stablecoin account already exists
+User2 collateral account already exists
+Skipping stablecoin minting - protocol will mint tokens during operations
+Mint authority: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar, Admin: 5oMxbgjPWkBYRKbsh3yKrrEC5Ut8y3azHKc787YHY9Ar, Can mint: true
+✅ Minting collateral tokens for testing (localnet)...
+✅ Minted and distributed collateral tokens successfully
+Creating token account for feeAddress1...
+FeeAddress1: 8Lv4UrYHTrzvg9jPVVGNmxWyMrMvrZnCQLWucBzfJyyR
+StablecoinMint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+FeeAddress1 token account already exists: GqY4SbdRG4vudGatbLN4d6yfnXXPzPrHDJBKWbgonxQq
+FeeAddress2 token account already exists: Hn5V9cYLmZDPwXQcp4vc6VMDzVatpBZBmmwNGXDNj6Cq
+Fee1 token account owner: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+Expected fee1 owner: 8Lv4UrYHTrzvg9jPVVGNmxWyMrMvrZnCQLWucBzfJyyR
+Match: false
+Fee2 token account owner: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+Expected fee2 owner: GcNwV1nA5bityjNYsWwPLHykpKuuhPzK1AQFBbrPopnX
+Match: false
+Token accounts created successfully
+Oracle already initialized
+Fees already initialized
+Protocol already initialized
+✅ Protocol state has correct addresses
+Skipping PDA token account creation (not allowed)
+    Core Protocol Operations
+SortedTrovesState account doesn't exist yet
+🔍 Debug - Account addresses being passed:
+- oracleProgram: 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M
+- oracleState: 483r4BkQvjCU3QkMdgaZLFAvk2XW9N6za2BmjPqHyVtN
+- feesProgram: AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ
+- feesState: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+- Existing troves accounts: 0
+❌ Trove opening failed: SendTransactionError: Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: ELpjGAaB9P6eLVe8aNnCaMzX6t6RoSyEEeRDyFn6R6Rb, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 18998 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+    at Connection.sendEncodedTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:6053:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Connection.sendRawTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:6009:20)
+    at sendAndConfirmRawTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/provider.ts:396:25)
+    at AnchorProvider.sendAndConfirm (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/provider.ts:167:14)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:29:16) {
+  signature: '',
+  transactionMessage: 'Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0',
+  transactionLogs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: OpenTrove',
+    'Program 11111111111111111111111111111111 invoke [2]',
+    'Allocate: account Address { address: ELpjGAaB9P6eLVe8aNnCaMzX6t6RoSyEEeRDyFn6R6Rb, base: None } already in use',
+    'Program 11111111111111111111111111111111 failed: custom program error: 0x0',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 18998 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0'
+  ],
+  programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]],
+      [PublicKey [PublicKey(11111111111111111111111111111111)]]
+    ]
+  }
+}
+      1) Should open a trove successfully
+✅ Minting additional collateral for add_collateral test...
+✅ Minted 15000000000 additional collateral tokens to user1
+  User1 raw balance: 75003000000 units
+  User1 UI balance: 75.003 tokens
+  Required amount: 15000000000 units
+  User1 raw balance: 75003000000 units
+  Required amount: 15000000000 units
+❌ Adding collateral failed: AnchorError: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+    at Function.parse (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+    at translateError (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  errorLogs: [
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.'
+  ],
+  logs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: AddCollateral',
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 9886 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0xbc4'
+  ],
+  error: {
+    errorCode: { code: 'AccountNotInitialized', number: 3012 },
+    errorMessage: 'The program expected this account to be already initialized',
+    comparedValues: undefined,
+    origin: 'sorted_troves_state'
+  },
+  _programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]]
+    ]
+  }
+}
+      2) Should add collateral to existing trove
+❌ Borrowing additional loan failed: AnchorError: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+    at Function.parse (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+    at translateError (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  errorLogs: [
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.'
+  ],
+  logs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: BorrowLoan',
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 10858 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0xbc4'
+  ],
+  error: {
+    errorCode: { code: 'AccountNotInitialized', number: 3012 },
+    errorMessage: 'The program expected this account to be already initialized',
+    comparedValues: undefined,
+    origin: 'sorted_troves_state'
+  },
+  _programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]]
+    ]
+  }
+}
+      3) Should borrow additional loan from trove
+Staking stablecoins from user1's trove...
+✅ Stablecoins staked successfully
+      ✔ Should stake stablecoins in stability pool (2249ms)
+SortedTrovesState account doesn't exist yet
+❌ Second trove opening failed: SendTransactionError: Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: EsjHpf14Yu6aYMsgUSUAyyDRydTJRcuPZg8YxdX2BMXc, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 12998 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+    at Connection.sendEncodedTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:6053:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Connection.sendRawTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:6009:20)
+    at sendAndConfirmRawTransaction (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/provider.ts:396:25)
+    at AnchorProvider.sendAndConfirm (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/provider.ts:167:14)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:29:16) {
+  signature: '',
+  transactionMessage: 'Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0',
+  transactionLogs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: OpenTrove',
+    'Program 11111111111111111111111111111111 invoke [2]',
+    'Allocate: account Address { address: EsjHpf14Yu6aYMsgUSUAyyDRydTJRcuPZg8YxdX2BMXc, base: None } already in use',
+    'Program 11111111111111111111111111111111 failed: custom program error: 0x0',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 12998 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0'
+  ],
+  programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]],
+      [PublicKey [PublicKey(11111111111111111111111111111111)]]
+    ]
+  }
+}
+      4) Should open a second trove for user2
+❌ Loan repayment failed: AnchorError: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+    at Function.parse (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+    at translateError (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  errorLogs: [
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.'
+  ],
+  logs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: RepayLoan',
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 10885 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0xbc4'
+  ],
+  error: {
+    errorCode: { code: 'AccountNotInitialized', number: 3012 },
+    errorMessage: 'The program expected this account to be already initialized',
+    comparedValues: undefined,
+    origin: 'sorted_troves_state'
+  },
+  _programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]]
+    ]
+  }
+}
+      5) Should repay loan partially
+❌ Removing collateral failed: AnchorError: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+    at Function.parse (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+    at translateError (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+    at MethodsBuilder.rpc [as _rpcFn] (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  errorLogs: [
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.'
+  ],
+  logs: [
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]',
+    'Program log: Instruction: RemoveCollateral',
+    'Program log: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 9889 of 200000 compute units',
+    'Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0xbc4'
+  ],
+  error: {
+    errorCode: { code: 'AccountNotInitialized', number: 3012 },
+    errorMessage: 'The program expected this account to be already initialized',
+    comparedValues: undefined,
+    origin: 'sorted_troves_state'
+  },
+  _programErrorStack: ProgramErrorStack {
+    stack: [
+      [PublicKey [PublicKey(9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ)]]
+    ]
+  }
+}
+      6) Should remove collateral from trove
+✅ Stablecoins unstaked successfully
+      ✔ Should unstake stablecoins from stability pool (3004ms)
+    Protocol State Verification
+📊 Protocol State:
+- Total Debt Amount: 75904999950000000
+- Total Collateral Amount: 0
+- Total Stake Amount: 3000000000000000
+- Minimum Collateral Ratio: 115
+- Protocol Fee: 5
+✅ Protocol state verification passed
+      ✔ Should verify protocol state after operations (1574ms)
+📊 User1 Trove State:
+- Owner: 7d4AG2fCbYW9gdmdUe9afUX69UknDmh9MXVXapRt7y56
+- Debt Amount: 2944999998000000
+- Collateral Amount: 24997000000
+- Collateral Denom: SOL
+✅ User trove verification passed
+      ✔ Should verify user trove state (834ms)
+📊 User1 Stake State:
+- Owner: 7d4AG2fCbYW9gdmdUe9afUX69UknDmh9MXVXapRt7y56
+- Amount: 0
+- P Snapshot: 1000000000000000000
+- Epoch Snapshot: 0
+✅ User stake verification passed
+      ✔ Should verify user stake state (559ms)
+
+
+  5 passing (41s)
+  6 failing
+
+  1) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should open a trove successfully:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: ELpjGAaB9P6eLVe8aNnCaMzX6t6RoSyEEeRDyFn6R6Rb, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 18998 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  2) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should add collateral to existing trove:
+     Error: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+      at Function.parse (node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+      at translateError (node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  3) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should borrow additional loan from trove:
+     Error: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+      at Function.parse (node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+      at translateError (node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  4) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should open a second trove for user2:
+     Simulation failed. 
+Message: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x0. 
+Logs: 
+[
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ invoke [1]",
+  "Program log: Instruction: OpenTrove",
+  "Program 11111111111111111111111111111111 invoke [2]",
+  "Allocate: account Address { address: EsjHpf14Yu6aYMsgUSUAyyDRydTJRcuPZg8YxdX2BMXc, base: None } already in use",
+  "Program 11111111111111111111111111111111 failed: custom program error: 0x0",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ consumed 12998 of 200000 compute units",
+  "Program 9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ failed: custom program error: 0x0"
+]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+  
+
+  5) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should repay loan partially:
+     Error: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+      at Function.parse (node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+      at translateError (node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  6) Aeroscraper Protocol Core Operations
+       Core Protocol Operations
+         Should remove collateral from trove:
+     Error: AnchorError caused by account: sorted_troves_state. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.
+      at Function.parse (node_modules/@coral-xyz/anchor/src/error.ts:168:14)
+      at translateError (node_modules/@coral-xyz/anchor/src/error.ts:277:35)
+      at MethodsBuilder.rpc [as _rpcFn] (node_modules/@coral-xyz/anchor/src/program/namespace/rpc.ts:35:29)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 

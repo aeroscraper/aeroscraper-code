@@ -1,0 +1,83 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-oracle-integration.ts'
+(node:1485429) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-oracle-integration.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Protocol Contract - Oracle Integration Tests
+
+🔮 Setting up Oracle Integration Tests...
+🚀 Setting up test environment for devnet...
+✅ Using existing stablecoin mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Using existing devnet collateral mint from vault: Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz
+✅ Oracle already initialized
+✅ Fees already initialized
+✅ Protocol already initialized
+✅ FeeAddress1 token account already exists: GqY4SbdRG4vudGatbLN4d6yfnXXPzPrHDJBKWbgonxQq
+✅ FeeAddress2 token account already exists: Hn5V9cYLmZDPwXQcp4vc6VMDzVatpBZBmmwNGXDNj6Cq
+✅ Setup complete
+    Test 7.1: Get Price via CPI Call
+📋 Testing oracle CPI price query...
+SortedTrovesState has 2 troves, head: H6jcCMEZJvBsyd16VizDF9E6aosUpzuTvjuhk1JWWavw
+✓ Processed trove H6jcCMEZJvBsyd16VizDF9E6aosUpzuTvjuhk1JWWavw, next: GLThBB9YBHJgQMVj2wGpbLwKwEMfjr1ieVHaqgueYxUn
+✓ Processed trove GLThBB9YBHJgQMVj2wGpbLwKwEMfjr1ieVHaqgueYxUn, next: null
+✅ Fetched 2 valid trove accounts for traversal
+  ✅ ICR calculated: 147176226%
+  ✅ Oracle CPI successfully returned price data
+      ✔ Should query oracle price through CPI (9252ms)
+    Test 7.2: ICR Calculation with Real Pyth Prices
+📋 Testing ICR calculation with Pyth prices...
+  Collateral: 10000000000 lamports
+  Debt: 950000000000000000 base units
+  ICR: 147176226%
+✅ ICR calculation verified with live Pyth prices
+      ✔ Should calculate ICR using real-time Pyth prices (1179ms)
+    Test 7.3: Liquidation Threshold with Oracle Prices
+📋 Testing liquidation threshold with oracle...
+  ICR: 147176226%
+  Liquidation Threshold: 110%
+  Is Liquidatable: false
+✅ Liquidation threshold logic verified
+      ✔ Should determine liquidation threshold from oracle (384ms)
+    Test 7.4: Multi-Collateral Price Queries
+📋 Testing multi-collateral support...
+  ✅ SOL: Supported via Pyth feed
+  ✅ Protocol architecture supports multi-collateral
+  ✅ Each denom stored separately in protocol state
+✅ Multi-collateral architecture verified
+      ✔ Should support multiple collateral types
+    Test 7.5: Price Staleness Handling
+📋 Testing price staleness...
+  ✅ Local: Uses get_price_unchecked for testing
+  ✅ Devnet: Uses get_price with 5-minute staleness check
+  ✅ Staleness validation architecture in place
+✅ Price staleness handling verified
+      ✔ Should handle price staleness validation
+    Test 7.6: Invalid Oracle Account Rejection
+📋 Testing oracle account validation...
+  ✅ Oracle program ID validated against state
+  ✅ Oracle state account validated against state
+  ✅ Covered in CPI security tests
+✅ Oracle account validation verified
+      ✔ Should reject invalid oracle accounts
+    Test 7.7: Oracle State Validation
+📋 Testing oracle state validation...
+  ✅ Oracle state address matches protocol state
+  ✅ Oracle program ID matches protocol state
+✅ Oracle state validation verified
+      ✔ Should validate oracle state PDA (264ms)
+    Test 7.8: Price Decimal Conversion
+📋 Testing decimal conversion...
+  Oracle Address: J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix
+  ✅ Pyth prices have varying exponents
+  ✅ Protocol normalizes to 18 decimals
+  ✅ Decimal conversion handled in oracle module
+✅ Decimal conversion verified
+      ✔ Should handle different decimal places (245ms)
+
+
+  8 passing (44s)
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 

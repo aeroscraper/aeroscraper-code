@@ -1,0 +1,60 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-fees-integration.ts'
+(node:1485891) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-fees-integration.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Protocol Contract - Fees Integration Tests
+    Test 8.1: Fee Distribution via CPI
+📋 Testing fee distribution CPI...
+  ✅ Fees program: AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ
+      1) Should distribute fees through CPI call
+    Test 8.2: Protocol Fee Calculation (5%)
+📋 Testing fee calculation...
+  Default protocol_fee = 5%
+  Applied on loan amounts
+✅ Fee calculation verified
+      ✔ Should calculate 5% protocol fee correctly
+    Test 8.3: Stability Pool Mode Distribution
+📋 Testing stability pool mode...
+  stake_contract_enabled = true
+  100% fees to stability pool
+✅ Stability pool distribution verified
+      ✔ Should distribute fees to stability pool when enabled
+    Test 8.4: Treasury Mode Distribution
+📋 Testing treasury mode...
+  stake_contract_enabled = false
+  50% to fee_address_1, 50% to fee_address_2
+✅ Treasury distribution verified
+      ✔ Should distribute fees 50/50 to treasury addresses
+    Test 8.5: Fee State Validation
+📋 Testing fee state validation...
+  Checks fee_state_addr in protocol state
+  Prevents fake fee contract injection
+✅ Fee state validation verified
+      ✔ Should validate fee state PDA in CPI
+    Test 8.6: Fee Account Owner Validation
+📋 Testing account ownership...
+  Validates payer token account owner
+  Prevents unauthorized fund draining
+✅ Ownership validation verified
+      ✔ Should validate fee account ownership
+
+
+  5 passing (2s)
+  1 failing
+
+  1) Protocol Contract - Fees Integration Tests
+       Test 8.1: Fee Distribution via CPI
+         Should distribute fees through CPI call:
+     Error: Invalid account discriminator
+      at BorshAccountsCoder.decode (node_modules/@coral-xyz/anchor/src/coder/borsh/accounts.ts:66:13)
+      at AccountClient.fetchNullableAndContext (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:154:34)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at AccountClient.fetchNullable (node_modules/@coral-xyz/anchor/src/program/namespace/account.ts:133:22)
+
+
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 

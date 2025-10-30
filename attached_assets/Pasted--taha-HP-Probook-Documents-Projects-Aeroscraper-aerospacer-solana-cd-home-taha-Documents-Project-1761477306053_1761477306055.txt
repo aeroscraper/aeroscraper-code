@@ -1,0 +1,209 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ cd /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana && ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/protocol-trove-management.ts'
+(node:130690) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Protocol Contract - Trove Management Tests
+
+🚀 Setting up Trove Management Tests for devnet...
+✅ Oracle already initialized on devnet
+✅ Fees already initialized on devnet
+✅ Protocol already initialized on devnet
+✅ Setup complete
+  User1: FWYzkZ4jQhCqH9YcroNYvU3kXBdPRUF7RY5iLLffwDGd
+  Protocol State: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+  Collateral Mint: 2F3918oxLGQrHoat9xkyhE8raRuQGLDjm5P38NhtNQc3
+  Stablecoin Mint: 7gVt1p6XMTc1LwBacso485yrwdPRD47UFgdb2JxW1Ctf
+    Test 2.1: Open Trove with Valid Collateral
+      1) Should successfully open trove with sufficient collateral
+    Test 2.2: Reject Duplicate Trove Opening
+      2) Should fail when user tries to open second trove
+    Test 2.3: Add Collateral to Existing Trove
+      3) Should successfully add collateral
+    Test 2.4: Borrow Loan from Trove
+      4) Should successfully borrow additional loan
+    Test 2.5: Repay Loan Partially
+      5) Should successfully repay part of the loan
+    Test 2.6: Repay Loan Fully
+      6) Should successfully repay all debt
+    Test 2.7: Close Trove
+      7) Should successfully close trove after full repayment
+    Test 2.8: Remove Collateral (Maintaining MCR)
+      8) Should successfully remove collateral while maintaining MCR
+    Test 2.9: Reject Collateral Removal Below MCR
+      9) Should fail when removing collateral would violate MCR
+    Test 2.10: Reject Borrow Below Minimum Loan Amount
+🔒 Attempting to open trove with loan below minimum...
+✅ Loan below minimum correctly rejected
+      10) Should fail when borrowing below minimum loan amount
+    Test 2.11: Reject Close Trove with Outstanding Debt
+      11) Should fail when trying to close trove with debt
+    Test 2.12: Open Trove with Multiple Collateral Types
+📋 Opening trove with USDC collateral...
+      12) Should support multiple collateral denominations
+
+
+  0 passing (2m)
+  12 failing
+
+  1) Protocol Contract - Trove Management Tests
+       Test 2.1: Open Trove with Valid Collateral
+         Should successfully open trove with sufficient collateral:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:293:26
+      at Generator.next (<anonymous>)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:41:71
+      at new Promise (<anonymous>)
+      at __awaiter (tests/protocol-trove-management.ts:37:12)
+      at Context.<anonymous> (tests/protocol-trove-management.ts:272:80)
+      at processImmediate (node:internal/timers:485:21)
+
+  2) Protocol Contract - Trove Management Tests
+       Test 2.2: Reject Duplicate Trove Opening
+         Should fail when user tries to open second trove:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:391:27
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  3) Protocol Contract - Trove Management Tests
+       Test 2.3: Add Collateral to Existing Trove
+         Should successfully add collateral:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:532:30
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  4) Protocol Contract - Trove Management Tests
+       Test 2.4: Borrow Loan from Trove
+         Should successfully borrow additional loan:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:680:33
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  5) Protocol Contract - Trove Management Tests
+       Test 2.5: Repay Loan Partially
+         Should successfully repay part of the loan:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:819:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  6) Protocol Contract - Trove Management Tests
+       Test 2.6: Repay Loan Fully
+         Should successfully repay all debt:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:944:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  7) Protocol Contract - Trove Management Tests
+       Test 2.7: Close Trove
+         Should successfully close trove after full repayment:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1062:26
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  8) Protocol Contract - Trove Management Tests
+       Test 2.8: Remove Collateral (Maintaining MCR)
+         Should successfully remove collateral while maintaining MCR:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1192:32
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  9) Protocol Contract - Trove Management Tests
+       Test 2.9: Reject Collateral Removal Below MCR
+         Should fail when removing collateral would violate MCR:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1340:33
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  10) Protocol Contract - Trove Management Tests
+       Test 2.10: Reject Borrow Below Minimum Loan Amount
+         Should fail when borrowing below minimum loan amount:
+     AssertionError: expected 'Assertion failed' to include 'LoanAmountBelowMinimum'
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1519:34
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  11) Protocol Contract - Trove Management Tests
+       Test 2.11: Reject Close Trove with Outstanding Debt
+         Should fail when trying to close trove with debt:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1581:39
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  12) Protocol Contract - Trove Management Tests
+       Test 2.12: Open Trove with Multiple Collateral Types
+         Should support multiple collateral denominations:
+     Error: Assertion failed
+      at assert (node_modules/bn.js/lib/bn.js:6:21)
+      at BN._initNumber (node_modules/bn.js/lib/bn.js:128:7)
+      at BN.init [as _init] (node_modules/bn.js/lib/bn.js:82:19)
+      at new BN (node_modules/bn.js/lib/bn.js:39:12)
+      at /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-trove-management.ts:1707:30
+      at Generator.next (<anonymous>)
+      at fulfilled (tests/protocol-trove-management.ts:38:58)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 
