@@ -11,6 +11,7 @@ import { useAppKitConnection } from "@reown/appkit-adapter-solana/react";
 import { PublicKey } from "@solana/web3.js";
 import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { useProtocolState } from "@/hooks/useProtocolState";
+import { validateSolBalance, validateAusdBalance } from "@/lib/solana/validateBalances";
 
 enum TABS {
   DEPOSIT = 0,
@@ -107,8 +108,18 @@ const StabilityPoolTab: FC = () => {
 
   const stakePool = async () => {
     try {
+      if (!address || !connection || !protocolState) {
+        throw new Error("Wallet not connected or protocol state not loaded");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert stakeAmount to smallest unit (1e18)
       const stakeInSmallestUnit = Math.floor(stakeAmount * 1e18);
+
+      // Validate balances before transaction
+      await validateSolBalance(connection, userPublicKey);
+      await validateAusdBalance(connection, userPublicKey, protocolState.stablecoinMint, stakeInSmallestUnit);
 
       const signature = await stake({
         stakeAmount: stakeInSmallestUnit,
@@ -133,8 +144,17 @@ const StabilityPoolTab: FC = () => {
 
   const unStakePool = async () => {
     try {
+      if (!address || !connection) {
+        throw new Error("Wallet not connected");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
       // Convert unstakeAmount to smallest unit (1e18)
       const unstakeInSmallestUnit = Math.floor(unstakeAmount * 1e18);
+
+      // Validate SOL balance for transaction fees
+      await validateSolBalance(connection, userPublicKey);
 
       const signature = await unstake({
         unstakeAmount: unstakeInSmallestUnit,

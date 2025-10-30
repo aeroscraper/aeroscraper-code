@@ -3,10 +3,12 @@
 import React, { FC, useState, useEffect, useCallback } from 'react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+import { useAppKitAccount } from '@reown/appkit/react';
 import { useProtocolState } from '@/hooks/useProtocolState';
 import { useSolanaProtocol } from '@/hooks/useSolanaProtocol';
 import { useNotification } from '@/contexts/NotificationProvider';
 import { fetchAllTroves } from '@/lib/solana/fetchTroves';
+import { validateSolBalance } from '@/lib/solana/validateBalances';
 import { TroveData } from '@/lib/solana/types';
 import { Table } from '@/components/Table/Table';
 import { TableBodyCol } from '@/components/Table/TableBodyCol';
@@ -45,6 +47,7 @@ interface RiskyTrovesTabV3Props { }
 
 const RiskyTrovesTabV3: FC<RiskyTrovesTabV3Props> = () => {
   const { connection } = useAppKitConnection();
+  const { address } = useAppKitAccount();
   const { protocolState } = useProtocolState();
   const { liquidateTroves, liquidateTrove, loading: protocolLoading } = useSolanaProtocol();
   const { addNotification, setProcessLoading, processLoading } = useNotification();
@@ -127,6 +130,15 @@ const RiskyTrovesTabV3: FC<RiskyTrovesTabV3Props> = () => {
     }
 
     try {
+      if (!address || !connection) {
+        throw new Error("Wallet not connected");
+      }
+
+      const userPublicKey = new PublicKey(address);
+      
+      // Validate SOL balance for transaction fees
+      await validateSolBalance(connection, userPublicKey);
+
       setProcessLoading(true);
       setLiquidationPending(prev => new Set(prev).add(ownerKey));
 
