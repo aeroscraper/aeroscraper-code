@@ -1,0 +1,120 @@
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com    ANCHOR_WALLET=~/.config/solana/id.json    npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/protocol-fees-integration.ts'
+(node:110485) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/tests/protocol-fees-integration.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  Protocol Contract - Fees Integration Tests
+
+🔧 Setting up test environment for fee integration tests...
+🚀 Setting up test environment for devnet...
+✅ Using existing stablecoin mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Using existing devnet collateral mint from vault: Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz
+✅ Oracle already initialized
+✅ Fees already initialized
+✅ Protocol already initialized
+✅ FeeAddress1 token account already exists: GqY4SbdRG4vudGatbLN4d6yfnXXPzPrHDJBKWbgonxQq
+✅ FeeAddress2 token account already exists: Hn5V9cYLmZDPwXQcp4vc6VMDzVatpBZBmmwNGXDNj6Cq
+✅ Test environment setup complete
+  Protocol State: 4d11FJYR9H7bkgupdDSY1eHU37YP1uwSUGy4NgeNwdkb
+  Fee State: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  Stablecoin Mint: GnasBgv2aBS97fUDGXGcseCQcXT9tGoKG9R49SDDyMMM
+✅ Test user created: GTDqWmiJVFdciVWrB9RMkUiGzNA26E1FWv7GmNuSVHoa
+    Test 8.1: Fee Distribution via CPI
+
+📋 Testing fee distribution CPI...
+  ✅ Fees program: AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ
+  ✅ Protocol state references correct fee_state_addr: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  ✅ Fee state initialized:
+    - Total fees collected: 704905006003936993
+    - Stake enabled: false
+  📝 Opening trove to test CPI fee distribution...
+Error fetching existing troves: TypeError: Cannot read properties of undefined (reading 'toBase58')
+    at Connection.getAccountInfo (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:3623:57)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      1) Should distribute fees through CPI call
+    Test 8.2: Protocol Fee Calculation (5%)
+
+📋 Testing fee calculation...
+  Loan amount: 1000000000000000000 aUSD
+  Expected fee (5%): 50000000000000000 aUSD
+Error fetching existing troves: TypeError: Cannot read properties of undefined (reading 'toBase58')
+    at Connection.getAccountInfo (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:3623:57)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      2) Should calculate 5% protocol fee correctly
+    Test 8.3: Stability Pool Mode Distribution
+
+📋 Testing stability pool mode...
+  🔄 Setting stake contract address...
+  🔄 Toggling stake contract to ENABLE stability pool mode...
+  ✅ Stability pool mode is ENABLED
+  100% of fees should go to stability pool
+Error fetching existing troves: TypeError: Cannot read properties of undefined (reading 'toBase58')
+    at Connection.getAccountInfo (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:3623:57)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      3) Should distribute fees to stability pool when enabled
+    Test 8.4: Treasury Mode Distribution
+
+📋 Testing treasury mode...
+  🔄 Toggling stake contract to DISABLE (enable treasury mode)...
+  ✅ Treasury mode is ENABLED
+  50% to fee_address_1, 50% to fee_address_2
+Error fetching existing troves: TypeError: Cannot read properties of undefined (reading 'toBase58')
+    at Connection.getAccountInfo (/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/node_modules/@solana/web3.js/src/connection.ts:3623:57)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      4) Should distribute fees 50/50 to treasury addresses
+    Test 8.5: Fee State Validation
+
+📋 Testing fee state validation...
+  Protocol state fee_state_addr: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  Expected fee state PDA: EMbFnchCu4t8FgXNYht49MaigXQxToqTcDoSCuQ5x9f2
+  ✅ Fee state PDA is validated in protocol state
+  ✅ Prevents fake fee contract injection attacks
+✅ Fee state validation verified
+      ✔ Should validate fee state PDA in CPI (394ms)
+    Test 8.6: Fee Account Owner Validation
+
+📋 Testing account ownership...
+  ✅ Fee distribution validates payer owns payer_token_account
+  ✅ Prevents unauthorized fund draining
+  ✅ Token account mint validation enforced
+✅ Ownership validation verified
+      ✔ Should validate fee account ownership
+
+
+  2 passing (1m)
+  4 failing
+
+  1) Protocol Contract - Fees Integration Tests
+       Test 8.1: Fee Distribution via CPI
+         Should distribute fees through CPI call:
+     TypeError: Cannot read properties of undefined (reading 'toBase58')
+      at Connection.getAccountInfo (node_modules/@solana/web3.js/src/connection.ts:3623:57)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  2) Protocol Contract - Fees Integration Tests
+       Test 8.2: Protocol Fee Calculation (5%)
+         Should calculate 5% protocol fee correctly:
+     TypeError: Cannot read properties of undefined (reading 'toBase58')
+      at Connection.getAccountInfo (node_modules/@solana/web3.js/src/connection.ts:3623:57)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  3) Protocol Contract - Fees Integration Tests
+       Test 8.3: Stability Pool Mode Distribution
+         Should distribute fees to stability pool when enabled:
+     TypeError: Cannot read properties of undefined (reading 'toBase58')
+      at Connection.getAccountInfo (node_modules/@solana/web3.js/src/connection.ts:3623:57)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  4) Protocol Contract - Fees Integration Tests
+       Test 8.4: Treasury Mode Distribution
+         Should distribute fees 50/50 to treasury addresses:
+     TypeError: Cannot read properties of undefined (reading 'toBase58')
+      at Connection.getAccountInfo (node_modules/@solana/web3.js/src/connection.ts:3623:57)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+
+
+taha@HP-Probook:~/Documents/Projects/Aeroscraper/aerospacer-solana$ 
