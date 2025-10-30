@@ -1,0 +1,501 @@
+{
+  "address": "AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ",
+  "metadata": {
+    "name": "aerospacer_fees",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "distribute_fee",
+      "discriminator": [
+        30,
+        155,
+        128,
+        162,
+        157,
+        113,
+        53,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "stability_pool_token_account",
+          "writable": true
+        },
+        {
+          "name": "fee_address_1_token_account",
+          "writable": true
+        },
+        {
+          "name": "fee_address_2_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "DistributeFeeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_config",
+      "discriminator": [
+        149,
+        105,
+        239,
+        181,
+        106,
+        218,
+        221,
+        71
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": {
+          "name": "ConfigResponse"
+        }
+      }
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_fee_addresses",
+      "discriminator": [
+        248,
+        60,
+        232,
+        46,
+        247,
+        72,
+        12,
+        113
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "SetFeeAddressesParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_stake_contract_address",
+      "discriminator": [
+        89,
+        105,
+        214,
+        254,
+        226,
+        57,
+        206,
+        8
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "SetStakeContractAddressParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "toggle_stake_contract",
+      "discriminator": [
+        77,
+        110,
+        126,
+        6,
+        23,
+        92,
+        26,
+        74
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "FeeStateAccount",
+      "discriminator": [
+        65,
+        189,
+        216,
+        177,
+        41,
+        250,
+        89,
+        115
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "name": "NoFeesToDistribute",
+      "msg": "No fees to distribute"
+    },
+    {
+      "code": 6002,
+      "name": "Overflow",
+      "msg": "Overflow occurred"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidFeeDistribution",
+      "msg": "Invalid fee distribution"
+    },
+    {
+      "code": 6004,
+      "name": "TransferFailed",
+      "msg": "Transfer failed"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidAddress",
+      "msg": "Invalid address"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint - all token accounts must use the same SPL token"
+    },
+    {
+      "code": 6007,
+      "name": "StakeContractNotSet",
+      "msg": "Stake contract address not set"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidStabilityPoolAccount",
+      "msg": "Invalid stability pool account - owner must match stake_contract_address"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidFeeAddress1",
+      "msg": "Invalid fee address 1 - owner must match configured fee_address_1"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidFeeAddress2",
+      "msg": "Invalid fee address 2 - owner must match configured fee_address_2"
+    },
+    {
+      "code": 6011,
+      "name": "UnauthorizedTokenAccount",
+      "msg": "Unauthorized token account - payer must own the payer_token_account"
+    }
+  ],
+  "types": [
+    {
+      "name": "ConfigResponse",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_stake_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "stake_contract_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_address_1",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_address_2",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_fees_collected",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DistributeFeeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeStateAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_stake_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "stake_contract_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_address_1",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_address_2",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_fees_collected",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetFeeAddressesParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_address_1",
+            "type": "string"
+          },
+          {
+            "name": "fee_address_2",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetStakeContractAddressParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}
