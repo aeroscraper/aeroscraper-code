@@ -1,9 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
 
 // Smart Contract Addresses / Program IDs
-export const PROTOCOL_PROGRAM_ID = new PublicKey("9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ");
-export const ORACLE_PROGRAM_ID = new PublicKey("8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M");
-export const FEES_PROGRAM_ID = new PublicKey("AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ");
+export const PROTOCOL_PROGRAM_ID = new PublicKey("HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk");
+export const ORACLE_PROGRAM_ID = new PublicKey("8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K");
+export const FEES_PROGRAM_ID = new PublicKey("FyBGDrxVAdTnwKeXFrhQR1UyyJhqbfQmZrXWqZuhYkAj");
 
 // Wrapped SOL (native SOL used as collateral)
 export const WSOL_MINT = new PublicKey("So11111111111111111111111111111111111111112");

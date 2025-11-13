@@ -6,19 +6,6 @@ import {
   AccountMeta,
 } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
-import { serialize } from 'borsh';
-
-// Define the schema structure
-interface BorshField {
-  kind: string;
-  fields: any[];
-}
-
-interface BorshSchema {
-  struct: { kind: string; fields: any[] };
-}
-import { OpenTroveParams, OpenTroveParamsSchema } from './instructionSchemas';
-import { RedeemParams, RedeemParamsSchema } from './instructionSchemas';
 import { deriveProtocolPDAs } from './derivePDAs';
 import {
   PROTOCOL_PROGRAM_ID,
@@ -369,7 +356,7 @@ export async function buildBorrowLoanInstruction(
   oracleState: PublicKey,
   feesProgramId: PublicKey,
   feesState: PublicKey,
-  loanAmount: number, // in smallest unit (1e18 for aUSD)
+  loanAmount: bigint, // in smallest unit (1e18 for aUSD)
   collateralDenom: string = 'SOL',
   neighborHints: PublicKey[] = []
 ): Promise<{ instruction: TransactionInstruction }> {
@@ -474,7 +461,7 @@ export async function buildRepayLoanInstruction(
   stablecoinMint: PublicKey,
   oracleProgramId: PublicKey,
   oracleState: PublicKey,
-  repayAmount: number,
+  repayAmount: bigint,
   collateralDenom: string = 'SOL',
   neighborHints: PublicKey[] = []
 ): Promise<{ instruction: TransactionInstruction }> {
@@ -567,7 +554,7 @@ export async function buildRepayLoanInstruction(
 export async function buildStakeInstruction(
   userPublicKey: PublicKey,
   stablecoinMint: PublicKey,
-  stakeAmount: number, // in smallest unit (1e18 for aUSD)
+  stakeAmount: bigint, // in smallest unit (1e18 for aUSD)
 ): Promise<{ instruction: TransactionInstruction }> {
   console.log('🔨 Building stake instruction...');
   console.log('User:', userPublicKey.toBase58());
@@ -653,7 +640,7 @@ export async function buildStakeInstruction(
 export async function buildUnstakeInstruction(
   userPublicKey: PublicKey,
   stablecoinMint: PublicKey,
-  unstakeAmount: number, // in smallest unit (1e18 for aUSD)
+  unstakeAmount: bigint, // in smallest unit (1e18 for aUSD)
 ): Promise<{ instruction: TransactionInstruction }> {
   console.log('🔨 Building unstake instruction...');
   console.log('User:', userPublicKey.toBase58());
@@ -767,6 +754,10 @@ export async function buildLiquidateTrovesInstruction(
 
   const [totalCollateralAmountPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from('total_collateral_amount'), Buffer.from(collateralDenom)],
+    PROTOCOL_PROGRAM_ID
+  );
+  const [stabilityPoolSnapshotPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('stability_pool_snapshot'), Buffer.from(collateralDenom)],
     PROTOCOL_PROGRAM_ID
   );
 
@@ -884,6 +875,7 @@ export async function buildLiquidateTrovesInstruction(
     { pubkey: oracleState, isSigner: false, isWritable: true }, // oracle_state
     { pubkey: SOL_PYTH_PRICE_FEED, isSigner: false, isWritable: false }, // pyth_price_account
     { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false }, // clock
+    { pubkey: stabilityPoolSnapshotPDA, isSigner: false, isWritable: true }, // stability_pool_snapshot
     { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // token_program
     { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, // system_program
   ];
@@ -1138,6 +1130,10 @@ export async function buildLiquidateTroveInstruction(
     [Buffer.from('liquidity_threshold'), targetUser.toBuffer()],
     PROTOCOL_PROGRAM_ID
   );
+  const [stabilityPoolSnapshotPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('stability_pool_snapshot'), Buffer.from(collateralDenom)],
+    PROTOCOL_PROGRAM_ID
+  );
 
   // Target user's collateral ATA
   const userCollateralATA = await getAssociatedTokenAddress(collateralMint, targetUser);
@@ -1175,6 +1171,7 @@ export async function buildLiquidateTroveInstruction(
     { pubkey: oracleState, isSigner: false, isWritable: true },
     { pubkey: SOL_PYTH_PRICE_FEED, isSigner: false, isWritable: false },
     { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+    { pubkey: stabilityPoolSnapshotPDA, isSigner: false, isWritable: true },
     { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
   ];
@@ -1271,8 +1268,9 @@ export async function buildWithdrawLiquidationGainsInstruction(
     { pubkey: stabilityPoolSnapshotPDA, isSigner: false, isWritable: true }, // stability_pool_snapshot
     { pubkey: protocolStatePDA, isSigner: false, isWritable: true }, // state
     { pubkey: userCollateralAccount, isSigner: false, isWritable: true }, // user_collateral_account
-    { pubkey: protocolCollateralVaultPDA, isSigner: false, isWritable: true }, // protocol_collateral_vault (CHECK)
-    { pubkey: totalCollateralAmountPDA, isSigner: false, isWritable: true }, // total_collateral_amount (CHECK)
+    { pubkey: collateralMint, isSigner: false, isWritable: false }, // collateral_mint
+    { pubkey: protocolCollateralVaultPDA, isSigner: false, isWritable: true }, // protocol_collateral_vault
+    { pubkey: totalCollateralAmountPDA, isSigner: false, isWritable: true }, // total_collateral_amount
     { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // token_program
     { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, // system_program
   ];
@@ -1290,6 +1288,68 @@ export async function buildWithdrawLiquidationGainsInstruction(
   });
 
   console.log('✅ withdraw_liquidation_gains instruction built');
+  console.log('📊 Total accounts:', accountMetas.length);
+  console.log('🔗 Program ID:', PROTOCOL_PROGRAM_ID.toBase58());
+
+  return { instruction };
+}
+
+export async function buildCloseTroveInstruction(
+  userPublicKey: PublicKey,
+  collateralMint: PublicKey,
+  stablecoinMint: PublicKey,
+  collateralDenom: string = 'SOL',
+): Promise<{ instruction: TransactionInstruction }> {
+  console.log('🔨 Building close_trove instruction...');
+  console.log('User:', userPublicKey.toBase58());
+  console.log('Collateral denom:', collateralDenom);
+
+  const pdas = deriveProtocolPDAs(userPublicKey, collateralDenom);
+  const userStablecoinAccount = await getAssociatedTokenAddress(stablecoinMint, userPublicKey);
+  const userCollateralAccount = await getAssociatedTokenAddress(collateralMint, userPublicKey);
+
+  const discriminator = new Uint8Array([235, 126, 65, 193, 10, 36, 99, 96]);
+  const denomBytes = new TextEncoder().encode(collateralDenom);
+  const denomLengthBuffer = new Uint8Array(4);
+  new DataView(denomLengthBuffer.buffer).setUint32(0, denomBytes.length, true);
+
+  const totalLength = discriminator.length + denomLengthBuffer.length + denomBytes.length;
+  const data = new Uint8Array(totalLength);
+  let offset = 0;
+  data.set(discriminator, offset);
+  offset += discriminator.length;
+  data.set(denomLengthBuffer, offset);
+  offset += denomLengthBuffer.length;
+  data.set(denomBytes, offset);
+
+  const accountMetas: AccountMeta[] = [
+    { pubkey: userPublicKey, isSigner: true, isWritable: true }, // user
+    { pubkey: pdas.userDebtAmount, isSigner: false, isWritable: true }, // user_debt_amount
+    { pubkey: pdas.userCollateralAmount, isSigner: false, isWritable: true }, // user_collateral_amount
+    { pubkey: pdas.liquidityThreshold, isSigner: false, isWritable: true }, // liquidity_threshold
+    { pubkey: pdas.protocolState, isSigner: false, isWritable: true }, // state
+    { pubkey: userStablecoinAccount, isSigner: false, isWritable: true }, // user_stablecoin_account
+    { pubkey: userCollateralAccount, isSigner: false, isWritable: true }, // user_collateral_account
+    { pubkey: pdas.protocolCollateralAccount, isSigner: false, isWritable: true }, // protocol_collateral_vault
+    { pubkey: stablecoinMint, isSigner: false, isWritable: true }, // stable_coin_mint
+    { pubkey: pdas.totalCollateralAmount, isSigner: false, isWritable: true }, // total_collateral_amount
+    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // token_program
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, // system_program
+  ];
+
+  console.log('📋 Account metas list:');
+  accountMetas.forEach((meta, idx) => {
+    const flags = `${meta.isSigner ? 'S' : '-'}${meta.isWritable ? 'W' : '-'}`;
+    console.log(`  [${idx}] ${meta.pubkey.toBase58()} ${flags}`);
+  });
+
+  const instruction = new TransactionInstruction({
+    keys: accountMetas,
+    programId: PROTOCOL_PROGRAM_ID,
+    data: Buffer.from(data),
+  });
+
+  console.log('✅ close_trove instruction built');
   console.log('📊 Total accounts:', accountMetas.length);
   console.log('🔗 Program ID:', PROTOCOL_PROGRAM_ID.toBase58());
 

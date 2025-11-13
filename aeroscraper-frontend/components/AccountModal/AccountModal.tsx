@@ -30,7 +30,7 @@ import { useDisconnect } from "@reown/appkit/react";
 interface Props {
   showModal: boolean;
   onClose: () => void;
-  balance: { ausd: number; base: number };
+  balance: { ausd: number; base: number; wsol: number };
   basePrice: number;
 }
 
@@ -69,12 +69,6 @@ const AccountModal: FC<Props> = (props: Props) => {
     status: boolean;
     idx?: number;
   }>({ status: false, idx: -1 });
-
-  const totalDollarBalance = useMemo(
-    () =>
-      props.balance.ausd * AUSD_PRICE + props.balance.base * props.basePrice,
-    [props.balance, props.basePrice]
-  );
 
   const [errorLargeSize, setErrorLargeSize] = useState<boolean>(false);
 
@@ -265,15 +259,7 @@ const AccountModal: FC<Props> = (props: Props) => {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-y-4 gap-x-20  w-full md:items-end justify-between mt-10">
-                <div className="md:col-span-1 col-span-3">
-                  <Text size="sm" textColor="text-dark-silver">
-                    Balance
-                  </Text>
-                  <Text size="lg" className="mt-2">
-                    ${totalDollarBalance.toFixed(2)}
-                  </Text>
-                </div>
+              <div className="grid grid-cols-3 md:grid-cols-3 gap-y-4 gap-x-20  w-full md:items-end justify-between mt-10">
                 <div className="col-span-1 md:ml-0 ml-4">
                   <NumericFormat
                     value={props.balance.ausd}
@@ -314,6 +300,25 @@ const AccountModal: FC<Props> = (props: Props) => {
                         {baseCoin && <SolanaIcon />}
                         {value}&nbsp;
                         {baseCoin?.name}
+                      </Text>
+                    )}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <NumericFormat
+                    value={props.balance.wsol}
+                    thousandsGroupStyle="thousand"
+                    thousandSeparator=","
+                    fixedDecimalScale
+                    decimalScale={4}
+                    displayType="text"
+                    renderText={(value) => (
+                      <Text
+                        size="lg"
+                        className="mt-2 whitespace-nowrap flex gap-2 items-center"
+                      >
+                        <SolanaIcon />
+                        {value}&nbsp; WSOL
                       </Text>
                     )}
                   />

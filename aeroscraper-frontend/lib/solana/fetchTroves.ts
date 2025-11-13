@@ -91,7 +91,7 @@ export async function fetchAllTroves(
     // 1. Fetch all UserDebtAmount accounts
     const programAccounts = await connection.getProgramAccounts(PROTOCOL_PROGRAM_ID, {
       filters: [
-        { dataSize: 56 }, // UserDebtAmount: 8 discriminator + 32 owner + 8 amount + 8 padding
+        { dataSize: 72 }, // Allocated as 8 (discriminator) + 32 owner + 8 debt + 16 l_debt_snapshot + 8 extra bytes
         {
           memcmp: {
             offset: 0,

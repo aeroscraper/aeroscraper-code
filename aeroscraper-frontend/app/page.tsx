@@ -92,22 +92,6 @@ export default function Home() {
         <div className='max-w-[626px]'>
           <Faq />
         </div>
-        <div className='flex gap-8 mt-10'>
-          <Link href={"/app/dashboard"}>
-            <GradientButton
-              className='w-[140px] lg:w-[227px] h-[37px] rounded-lg self-end px-8 group'
-            >
-              <Text size='base'>Launch App</Text>
-            </GradientButton>
-          </Link>
-          <Link href={"https://aeroscraper.gitbook.io/aeroscraper/"} target="_blank">
-            <OutlinedButton
-              className='w-[140px] lg:w-[227px] h-[41px] rounded-lg self-end group'
-            >
-              <Text size='base'>Learn More</Text>
-            </OutlinedButton>
-          </Link>
-        </div>
         <div>
           <h2 className="text-4xl font-semibold text-white mb-4 mt-14">Our Partners</h2>
           <Text size='base' className='mt-8' textColor='text-white/60'>Chains</Text>

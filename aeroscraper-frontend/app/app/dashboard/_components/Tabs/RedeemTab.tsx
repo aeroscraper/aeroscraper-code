@@ -23,6 +23,7 @@ import { useProtocolState } from "@/hooks/useProtocolState";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { fetchAllTroves } from "@/lib/solana/fetchTroves";
 import { validateSolBalance, validateAusdBalance } from "@/lib/solana/validateBalances";
+import { decimalToBigInt } from "@/lib/solana/units";
 
 const RedeemTab: FC = () => {
   const { address, isConnected } = useAppKitAccount();
@@ -111,13 +112,15 @@ const RedeemTab: FC = () => {
     const grossCapRaw = netCap > 0 ? netCap / (1 - feePercent) : 0;
     const grossCapFloored = Math.floor(grossCapRaw * 1e6) / 1e6; // floor to 6 decimals
     const grossCap = Math.min(grossCapFloored, userAusd, 999);
-    setMaxRedeemableGross(grossCap);
-    if (grossCap > 0 && Math.abs(redeemAmount - grossCap) > 1e-12) {
-      setRedeemAmount(grossCap);
+    const clampedGrossCap = grossCap < 1e-6 ? 0 : grossCap;
+    setMaxRedeemableGross(clampedGrossCap);
+    if (clampedGrossCap > 0 && Math.abs(redeemAmount - clampedGrossCap) > 1e-12) {
+      setRedeemAmount(clampedGrossCap);
     }
-    const effectiveGross = grossCap > 0 ? Math.min(redeemAmount || grossCap, grossCap) : 0;
+    const effectiveGross =
+      clampedGrossCap > 0 ? Math.min(redeemAmount || clampedGrossCap, clampedGrossCap) : 0;
     const effectiveNet = effectiveGross * (1 - feePercent);
-    let remainingAmount = BigInt(Math.floor(effectiveNet * 1e18));
+    let remainingAmount = decimalToBigInt(effectiveNet, 18);
     let totalCollateralToReceive = BigInt(0);
     for (const t of sortedTroves) {
       if (remainingAmount <= BigInt(0)) break;
@@ -170,9 +173,9 @@ const RedeemTab: FC = () => {
       }
 
       const userPublicKey = new PublicKey(address);
-      
+
       // Convert redeemAmount to smallest unit (18 decimals)
-      const redeemAmountInSmallestUnit = BigInt(Math.floor(redeemAmount * 1e18));
+      const redeemAmountInSmallestUnit = decimalToBigInt(redeemAmount, 18);
 
       // Validate balances before transaction
       await validateSolBalance(connection, userPublicKey);
@@ -197,6 +200,23 @@ const RedeemTab: FC = () => {
       });
     }
   };
+
+  const formatAusdAmount = useCallback(
+    (value: number) => {
+      if (!Number.isFinite(value) || value === 0) {
+        return "0.000000";
+      }
+      const abs = Math.abs(value);
+      if (abs < 1e-6) {
+        return "0.000000";
+      }
+      return value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 6,
+      });
+    },
+    []
+  );
 
   return (
     <section>
@@ -239,7 +259,9 @@ const RedeemTab: FC = () => {
                 {loadingTroves ? (
                   <span className="inline-block ml-2 w-24 h-4 rounded bg-white/10 animate-pulse" />
                 ) : (
-                  <span className="font-regular ml-2">{maxRedeemableGross} AUSD</span>
+                  <span className="font-regular ml-2">
+                    {formatAusdAmount(maxRedeemableGross)} AUSD
+                  </span>
                 )}
               </Text>
             )}
@@ -254,14 +276,9 @@ const RedeemTab: FC = () => {
         </div>
         <div className="w-full bg-cetacean-dark-blue border border-white/10 rounded-xl md:rounded-2xl px-3 pt-6 pb-3 md:px-6 md:py-8 flex items-center justify-between mt-6">
           <div className="flex items-center gap-2">
-            {/* <img
-              alt="sol"
-              src="/images/token-images/sol.svg"
-              className="w-6 h-6"
-            /> */}
             <SolanaIcon />
             <Text size="base" weight="font-medium">
-              SOL
+              WSOL
             </Text>
           </div>
           <NumericFormat

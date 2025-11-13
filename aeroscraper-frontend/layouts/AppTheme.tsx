@@ -47,15 +47,17 @@ const AppTheme = () => {
     useSolanaBalance();
   const [mounted, setMounted] = useState(false);
   const [ausdBalance, setAusdBalance] = useState<bigint>(BigInt(0));
+  const [wsolBalance, setWsolBalance] = useState<bigint>(BigInt(0));
   const { protocolState } = useProtocolState();
   const [accountModal, setAccountModal] = useState(false);
   const { profileDetail } = useProfile();
   const [chainData, setChainData] = useState<any>(ChainData);
 
   useEffect(() => {
-    const fetchAusdBalance = async () => {
+    const fetchSPLBalances = async () => {
       if (!address || !connection || !protocolState) {
         setAusdBalance(BigInt(0));
+        setWsolBalance(BigInt(0));
         return;
       }
 
@@ -64,31 +66,87 @@ const AppTheme = () => {
           "@solana/spl-token"
         );
         const userPublicKey = new PublicKey(address);
-        const userATA = await getAssociatedTokenAddress(
-          protocolState.stablecoinMint,
-          userPublicKey
-        );
+        const [ausdATA, wsolATA] = await Promise.all([
+          getAssociatedTokenAddress(
+            protocolState.stablecoinMint,
+            userPublicKey
+          ),
+          getAssociatedTokenAddress(
+            protocolState.collateralMint,
+            userPublicKey
+          ),
+        ]);
+
+        let nextAusd = BigInt(0);
+        let nextWsol = BigInt(0);
 
         try {
-          const accountInfo = await getAccount(connection, userATA);
-          setAusdBalance(accountInfo.amount);
-        } catch (err) {
-          setAusdBalance(BigInt(0));
+          const ausdAccount = await getAccount(connection, ausdATA);
+          nextAusd = ausdAccount.amount;
+        } catch (error) {
+          if (error instanceof Error) {
+            const msg = error.message ?? "";
+            if (
+              error.name !== "TokenAccountNotFoundError" &&
+              !msg.includes("could not find account")
+            ) {
+              console.error("Error fetching aUSD balance:", error);
+            }
+          } else {
+            console.error("Error fetching aUSD balance:", error);
+          }
         }
-      } catch (err) {
-        console.error("Error fetching aUSD balance:", err);
+
+        try {
+          const wsolAccount = await getAccount(connection, wsolATA);
+          nextWsol = wsolAccount.amount;
+        } catch (error) {
+          if (error instanceof Error) {
+            const msg = error.message ?? "";
+            if (
+              error.name !== "TokenAccountNotFoundError" &&
+              !msg.includes("could not find account")
+            ) {
+              console.error("Error fetching WSOL balance:", error);
+            }
+          } else {
+            console.error("Error fetching WSOL balance:", error);
+          }
+        }
+
+        setAusdBalance(nextAusd);
+        setWsolBalance(nextWsol);
+      } catch (error) {
+        console.error("Error fetching SPL token balances:", error);
         setAusdBalance(BigInt(0));
+        setWsolBalance(BigInt(0));
       }
     };
 
-    fetchAusdBalance();
-    const interval = setInterval(fetchAusdBalance, 5000);
+    fetchSPLBalances();
+    const interval = setInterval(fetchSPLBalances, 5000);
     return () => clearInterval(interval);
   }, [address, connection, protocolState]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const formattedAusd = React.useMemo(() => {
+    try {
+      return (Number(ausdBalance) / 1e18).toFixed(2);
+    } catch {
+      return "0.00";
+    }
+  }, [ausdBalance]);
+
+  const formattedWsol = React.useMemo(() => {
+    try {
+      return (Number(wsolBalance) / 1e9).toFixed(4);
+    } catch {
+      return "0.0000";
+    }
+  }, [wsolBalance]);
 
   // Render consistent default state during SSR to prevent hydration mismatch
   if (!mounted) {
@@ -258,13 +316,21 @@ const AppTheme = () => {
         </div>
         <div className="flex items-center">
           <div className="items-center gap-2 mr-8 md:flex hidden">
-            <Text size="base">$1.00</Text>
+            <Text size="base">${formattedAusd}</Text>
             <img
               alt="ausd"
               className="w-5 h-5"
               src="/images/token-images/ausd-blue.svg"
             />
           </div>
+          {isWalletConnected && (
+            <div className="items-center gap-2 mr-8 md:flex hidden">
+              <Text size="base">
+                {formattedWsol} WSOL
+              </Text>
+              <SolanaIcon className="w-5 h-5" />
+            </div>
+          )}
           {isWalletConnected && (
             <div className="items-center gap-2 mr-12 md:flex hidden">
               <Text size="base">
@@ -275,9 +341,9 @@ const AppTheme = () => {
           )}
           {isWalletConnected && !isNil(baseCoin) ? (
             <>
-              <div className="md:flex hidden mr-4">
+              {/* <div className="md:flex hidden mr-4">
                 <VersionSelector />
-              </div>
+              </div> */}
               <div className="md:flex hidden">
                 <NotificationDropdown />
               </div>
@@ -352,14 +418,8 @@ const AppTheme = () => {
         <AccountModal
           balance={{
             ausd: Number(ausdBalance) / 1e18,
-            base: !isNil(baseCoin)
-              ? Number(
-                convertAmount(
-                  balanceByDenom[baseCoin.denom]?.amount ?? 0,
-                  baseCoin.decimal
-                )
-              )
-              : 0,
+            base: Number(balance?.data?.balance ?? 0),
+            wsol: Number(wsolBalance) / 1e9,
           }}
           basePrice={Number(ausdBalance) / 1e18}
           showModal={accountModal}
@@ -371,7 +431,7 @@ const AppTheme = () => {
       {isWalletConnected && !isNil(baseCoin) && (
         <div className="items-center md:hidden flex border h-[50px] border-white/20 mx-4 rounded-lg mt-8 pl-4 z-50">
           <div className="flex items-center gap-2 mr-8">
-            <Text size="base">$1.00</Text>
+            <Text size="base">${formattedAusd}</Text>
             <img
               alt="ausd"
               className="w-5 h-5"
@@ -380,7 +440,14 @@ const AppTheme = () => {
           </div>
           {!isNil(baseCoin) && (
             <div className="flex items-center gap-2 mr-12">
-              <Text size="base">$ {Number(ausdBalance) / 1e18}</Text>
+              <Text size="base">{formattedWsol} WSOL</Text>
+            </div>
+          )}
+          {!isNil(baseCoin) && (
+            <div className="flex items-center gap-2 mr-12">
+              <Text size="base">
+                {Number(formattedBalance).toFixed(4)} {symbol}
+              </Text>
               <img
                 alt={baseCoin.name}
                 className="w-5 h-5"

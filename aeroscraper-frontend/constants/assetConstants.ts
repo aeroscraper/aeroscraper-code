@@ -65,7 +65,7 @@ const xionAsset: CollateralAsset = {
 
 const solanaAsset: CollateralAsset = {
   name: "Solana",
-  shortName: "SOL",
+  shortName: "WSOL",
   denom: "sol",
   decimal: 9,
   ausdDecimal: 9,
