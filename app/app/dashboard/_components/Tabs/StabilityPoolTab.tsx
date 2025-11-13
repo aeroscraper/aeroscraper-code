@@ -12,6 +12,7 @@ import { PublicKey } from "@solana/web3.js";
 import { useSolanaProtocol } from "@/hooks/useSolanaProtocol";
 import { useProtocolState } from "@/hooks/useProtocolState";
 import { validateSolBalance, validateAusdBalance } from "@/lib/solana/validateBalances";
+import { decimalToBigInt } from "@/lib/solana/units";
 
 enum TABS {
   DEPOSIT = 0,
@@ -87,7 +88,7 @@ const StabilityPoolTab: FC = () => {
     () =>
       stakeAmount <= 0 ||
       stakeAmount > 999 ||
-      BigInt(Math.floor(stakeAmount * 1e18)) > ausdBalance,
+      decimalToBigInt(stakeAmount, 18) > ausdBalance,
     [stakeAmount, ausdBalance]
   );
 
@@ -95,7 +96,7 @@ const StabilityPoolTab: FC = () => {
     () =>
       unstakeAmount <= 0 ||
       unstakeAmount > 999 ||
-      BigInt(Math.floor(unstakeAmount * 1e18)) > compoundedStake,
+      decimalToBigInt(unstakeAmount, 18) > compoundedStake,
     [unstakeAmount, compoundedStake]
   );
 
@@ -115,7 +116,7 @@ const StabilityPoolTab: FC = () => {
       const userPublicKey = new PublicKey(address);
       
       // Convert stakeAmount to smallest unit (1e18)
-      const stakeInSmallestUnit = Math.floor(stakeAmount * 1e18);
+      const stakeInSmallestUnit = decimalToBigInt(stakeAmount, 18);
 
       // Validate balances before transaction
       await validateSolBalance(connection, userPublicKey);
@@ -151,7 +152,7 @@ const StabilityPoolTab: FC = () => {
       const userPublicKey = new PublicKey(address);
       
       // Convert unstakeAmount to smallest unit (1e18)
-      const unstakeInSmallestUnit = Math.floor(unstakeAmount * 1e18);
+      const unstakeInSmallestUnit = decimalToBigInt(unstakeAmount, 18);
 
       // Validate SOL balance for transaction fees
       await validateSolBalance(connection, userPublicKey);

@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { PROTOCOL_PROGRAM_ID, ORACLE_PROGRAM_ID, FEES_PROGRAM_ID } from '@/lib/constants/solana';
+import { PROTOCOL_PROGRAM_ID } from '@/lib/constants/solana';
 
 export interface ProtocolStateData {
   admin: PublicKey;
@@ -9,7 +9,13 @@ export interface ProtocolStateData {
   oracleState: PublicKey;
   feesProgramId: PublicKey;
   feesState: PublicKey;
+  minimumCollateralRatio: bigint;
+  protocolFee: number;
+  stableCoinCodeId: bigint;
+  totalDebtAmount: bigint;
   totalStakeAmount: bigint;
+  pFactor: bigint;
+  epoch: bigint;
 }
 
 /**
@@ -36,50 +42,52 @@ export async function fetchProtocolState(connection: Connection): Promise<Protoc
   // - oracle_state_addr: 32 bytes (pubkey)
   // - fee_distributor_addr: 32 bytes (pubkey)
   // - fee_state_addr: 32 bytes (pubkey)
-  // - minimum_collateral_ratio: 1 byte (u8)
+  // - minimum_collateral_ratio: 8 bytes (u64)
   // - protocol_fee: 1 byte (u8)
   // - stable_coin_addr: 32 bytes (pubkey)
+  // - stable_coin_code_id: 8 bytes (u64)
   // - total_debt_amount: 8 bytes (u64)
   // - total_stake_amount: 8 bytes (u64)
   // - p_factor: 16 bytes (u128)
   // - epoch: 8 bytes (u64)
 
   const data = accountInfo.data;
+  const view = new DataView(data.buffer, data.byteOffset, data.length);
   let offset = 8; // Skip discriminator
 
-  // Read admin (32 bytes)
-  const admin = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
+  const readPubkey = () => {
+    const key = new PublicKey(data.subarray(offset, offset + 32));
+    offset += 32;
+    return key;
+  };
 
-  // Read oracle_helper_addr (this is the oracle program ID)
-  const oracleProgramId = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
+  const admin = readPubkey();
+  const oracleProgramId = readPubkey();
+  const oracleState = readPubkey();
+  const feesProgramId = readPubkey();
+  const feesState = readPubkey();
 
-  // Read oracle_state_addr
-  const oracleState = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
+  const minimumCollateralRatio = view.getBigUint64(offset, true);
+  offset += 8;
+  const protocolFee = data[offset];
+  offset += 1;
 
-  // Read fee_distributor_addr (this is the fees program ID)
-  const feesProgramId = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
-
-  // Read fee_state_addr
-  const feesState = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
-
-  // Skip minimum_collateral_ratio (1 byte) and protocol_fee (1 byte)
-  offset += 2;
-
-  // Read stable_coin_addr (stablecoin mint)
-  const stablecoinMint = new PublicKey(data.slice(offset, offset + 32));
-  offset += 32;
-
-  // Read total_debt_amount (u64, 8 bytes)
-  const totalDebtAmount = new DataView(data.buffer, offset, 8).getBigUint64(0, true);
+  const stablecoinMint = readPubkey();
+  const stableCoinCodeId = view.getBigUint64(offset, true);
+  offset += 8;
+  const totalDebtAmount = view.getBigUint64(offset, true);
+  offset += 8;
+  const totalStakeAmount = view.getBigUint64(offset, true);
   offset += 8;
 
-  // Read total_stake_amount (u64, 8 bytes)
-  const totalStakeAmount = new DataView(data.buffer, offset, 8).getBigUint64(0, true);
+  const pFactorLow = view.getBigUint64(offset, true);
+  offset += 8;
+  const pFactorHigh = view.getBigUint64(offset, true);
+  offset += 8;
+  const pFactor = (pFactorHigh << BigInt(64)) | pFactorLow;
+
+  const epoch = view.getBigUint64(offset, true);
+  offset += 8;
 
   // Fetch collateral mint from devnet vault (same as tests in protocol-core.ts)
   const [protocolCollateralVaultPDA] = PublicKey.findProgramAddressSync(
@@ -111,7 +119,13 @@ export async function fetchProtocolState(connection: Connection): Promise<Protoc
     oracleState,
     feesProgramId,
     feesState,
+    minimumCollateralRatio,
+    protocolFee,
+    stableCoinCodeId,
+    totalDebtAmount,
     totalStakeAmount,
+    pFactor,
+    epoch,
   };
 }
 

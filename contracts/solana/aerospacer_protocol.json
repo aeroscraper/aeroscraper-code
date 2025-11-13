@@ -1,5 +1,5 @@
 {
-  "address": "9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ",
+  "address": "HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk",
   "metadata": {
     "name": "aerospacer_protocol",
     "version": "0.1.0",
@@ -1174,6 +1174,46 @@
           "address": "SysvarC1ock11111111111111111111111111111111"
         },
         {
+          "name": "stability_pool_snapshot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  98,
+                  105,
+                  108,
+                  105,
+                  116,
+                  121,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108,
+                  95,
+                  115,
+                  110,
+                  97,
+                  112,
+                  115,
+                  104,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.collateral_denom"
+              }
+            ]
+          }
+        },
+        {
           "name": "token_program",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
@@ -1356,6 +1396,46 @@
             "Clock sysvar for timestamp validation"
           ],
           "address": "SysvarC1ock11111111111111111111111111111111"
+        },
+        {
+          "name": "stability_pool_snapshot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  98,
+                  105,
+                  108,
+                  105,
+                  116,
+                  121,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108,
+                  95,
+                  115,
+                  110,
+                  97,
+                  112,
+                  115,
+                  104,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.collateral_denom"
+              }
+            ]
+          }
         },
         {
           "name": "token_program",
@@ -3042,6 +3122,12 @@
           "writable": true
         },
         {
+          "name": "collateral_mint",
+          "docs": [
+            "Collateral mint for validation"
+          ]
+        },
+        {
           "name": "protocol_collateral_vault",
           "writable": true,
           "pda": {
@@ -3278,108 +3364,123 @@
     },
     {
       "code": 6005,
+      "name": "InvalidAddress",
+      "msg": "Invalid address"
+    },
+    {
+      "code": 6006,
       "name": "InvalidAccountData",
       "msg": "Invalid account data"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "InvalidMint",
       "msg": "Invalid mint"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "TroveExists",
       "msg": "Trove already exists"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "TroveDoesNotExist",
       "msg": "Trove does not exist"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "InvalidCollateralRatio",
       "msg": "Invalid collateral ratio"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "CollateralRewardsNotFound",
       "msg": "No liquidation collateral rewards found for sender"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "NotEnoughLiquidityForRedeem",
       "msg": "Not enough liquidity for redeem"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "CollateralBelowMinimum",
       "msg": "Collateral below minimum"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InsufficientCollateral",
       "msg": "Insufficient collateral"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "LoanAmountBelowMinimum",
       "msg": "Loan amount below minimum"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "InvalidDecimal",
       "msg": "Invalid decimal"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "InvalidList",
       "msg": "Invalid list"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "DivideByZeroError",
       "msg": "Divide by zero error"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "OverflowError",
       "msg": "Overflow error"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "FundsError",
       "msg": "Funds error"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "CheckedFromRatioError",
       "msg": "Checked from ratio error"
     },
     {
-      "code": 6021,
+      "code": 6022,
       "name": "Decimal256RangeExceeded",
       "msg": "Decimal256 range exceeded"
     },
     {
-      "code": 6022,
+      "code": 6023,
       "name": "ConversionOverflowError",
       "msg": "Conversion overflow error"
     },
     {
-      "code": 6023,
+      "code": 6024,
       "name": "CheckedMultiplyFractionError",
       "msg": "Checked multiply fraction error"
     },
     {
-      "code": 6024,
+      "code": 6025,
       "name": "MathOverflow",
       "msg": "Math overflow error"
     },
     {
-      "code": 6025,
+      "code": 6026,
       "name": "InvalidSnapshot",
       "msg": "Invalid snapshot"
+    },
+    {
+      "code": 6027,
+      "name": "MissingSnapshotAccount",
+      "msg": "Missing snapshot account in remaining_accounts"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidSnapshotAccount",
+      "msg": "Invalid snapshot account - does not match expected PDA"
     }
   ],
   "types": [
@@ -3703,7 +3804,7 @@
           },
           {
             "name": "minimum_collateral_ratio",
-            "type": "u8"
+            "type": "u64"
           },
           {
             "name": "protocol_fee",
@@ -3712,6 +3813,10 @@
           {
             "name": "stable_coin_addr",
             "type": "pubkey"
+          },
+          {
+            "name": "stable_coin_code_id",
+            "type": "u64"
           },
           {
             "name": "total_debt_amount",
@@ -3744,6 +3849,14 @@
           {
             "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "l_collateral",
+            "type": "u128"
+          },
+          {
+            "name": "l_debt",
+            "type": "u128"
           }
         ]
       }
@@ -3820,6 +3933,10 @@
           {
             "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "l_collateral_snapshot",
+            "type": "u128"
           }
         ]
       }
@@ -3860,6 +3977,10 @@
           {
             "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "l_debt_snapshot",
+            "type": "u128"
           }
         ]
       }

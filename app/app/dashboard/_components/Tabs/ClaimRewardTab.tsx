@@ -84,7 +84,7 @@ const ClaimRewardTab: FC = () => {
 
   return (
     <section>
-      <Text size="3xl">Claim your rewards in SOL</Text>
+      <Text size="3xl">Claim your rewards in WSOL</Text>
       <div className="mt-6">
         <div className="w-full bg-cetacean-dark-blue border border-white/10 rounded-xl md:rounded-2xl px-3 pt-4 pb-3 md:px-6 md:py-8 flex items-end justify-between mt-6">
           <div>
@@ -94,7 +94,7 @@ const ClaimRewardTab: FC = () => {
             <div className="flex items-center gap-2">
               <SolanaIcon />
               <Text size="base" weight="font-medium">
-                SOL
+                WSOL
               </Text>
             </div>
           </div>

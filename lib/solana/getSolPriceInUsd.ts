@@ -4,14 +4,14 @@ export async function getPrice(denom: string): Promise<number> {
 
   if (token === "SOL") {
     try {
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
-        { cache: "no-store" }
-      );
-
+      const response = await fetch(`/api/oracle/price?denom=${token}`, {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
-      const price = Number(data?.solana?.usd ?? 0);
-
+      const price = Number(data?.price ?? 0);
       if (Number.isFinite(price) && price > 0) {
         return price;
       }

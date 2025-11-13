@@ -6,7 +6,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 const nextConfig = withBundleAnalyzer({
   compiler: {
-    removeConsole: env.NODE_ENV === "production" ? true : false,
+    removeConsole: false,
   },
   compress: true,
   trailingSlash: true,

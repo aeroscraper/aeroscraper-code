@@ -7,6 +7,8 @@ import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 import { buildOpenTroveInstruction } from '@/lib/solana/buildInstructions';
 import { getNeighborHints } from '@/lib/solana/getNeighborHints';
 import { useProtocolState } from './useProtocolState';
+import { getPrice as getSolPrice } from '@/lib/solana/getSolPriceInUsd';
+import { decimalToBigInt } from '@/lib/solana/units';
 
 interface SolanaWalletProvider {
     publicKey: PublicKey;
@@ -21,6 +23,13 @@ export function useSolanaProtocol() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { protocolState, loading: stateLoading } = useProtocolState();
+    const mapLiquidationError = (err: any): string => {
+        const raw = err?.message ?? err?.toString?.() ?? '';
+        if (raw.includes('AccountDidNotSerialize') || raw.includes('Failed to serialize the account')) {
+            return 'Stability pool snapshot account is missing on this cluster. Please initialize the stability pool snapshot PDA and try again.';
+        }
+        return raw || 'Failed to process liquidation transaction';
+    };
 
     const openTrove = async (params: {
         collateralAmount: number; // SOL in lamports
@@ -194,20 +203,19 @@ export function useSolanaProtocol() {
                 throw new Error(`Transaction would fail: ${simError.message}`);
             }
 
-            console.log('✍️  Sending transaction to wallet for signing...');
-            const signature = await walletProvider.signAndSendTransaction(tx);
-            console.log('✅ Transaction sent, signature:', signature);
+            try {
+                const signature = await walletProvider.signAndSendTransaction(tx);
+                console.log('✅ Sent, signature:', signature);
+                await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight });
 
-            // Wait for confirmation
-            console.log('⏳ Waiting for confirmation...');
-            await connection.confirmTransaction({
-                signature,
-                blockhash,
-                lastValidBlockHeight,
-            });
-            console.log('✅ Transaction confirmed!');
-
-            return signature;
+                return signature;
+            } catch (err: any) {
+                console.error('❌ signAndSendTransaction failed:', err);
+                if (err?.logs) console.error('RPC logs:', err.logs);
+                const cause = err?.cause ?? (err?.message ? { message: err.message } : err);
+                console.error('💡 Full error payload:', JSON.stringify(cause, Object.getOwnPropertyNames(cause)));
+                throw err;
+            }
         } catch (err: any) {
             // Enhanced error logging for debugging
             console.error(' 🚨 Failed to open trove: ', err);
@@ -391,8 +399,12 @@ export function useSolanaProtocol() {
 
             // 4. Validate new ICR won't drop below minimum (115%)
             const MINIMUM_ICR = 115; // 115%
-            const estimatedPrice = 140; // Conservative SOL price estimate in USD
-            const collateralValueUSD = (newTotalCollateral / 1e9) * estimatedPrice;
+            const solPriceUsd = await getSolPrice('SOL');
+            console.log('🔍 SOL price:', solPriceUsd);
+            if (!Number.isFinite(solPriceUsd) || solPriceUsd <= 0) {
+                throw new Error('Unable to fetch current SOL price for ICR validation. Please try again.');
+            }
+            const collateralValueUSD = (newTotalCollateral / 1e9) * solPriceUsd;
             const debtValueUSD = Number(currentDebt) / 1e18;
             const newICR = (collateralValueUSD / debtValueUSD) * 100;
 
@@ -481,7 +493,7 @@ export function useSolanaProtocol() {
     };
 
     const borrowLoan = async (params: {
-        loanAmount: number; // aUSD amount in smallest unit (1e18)
+        loanAmount: bigint; // aUSD amount in smallest unit (1e18)
     }) => {
         if (!isConnected || !walletProvider || !address) {
             throw new Error('Wallet not connected');
@@ -511,32 +523,37 @@ export function useSolanaProtocol() {
             }
 
             // 2. Validate loan amount is above minimum
-            const MINIMUM_LOAN_AMOUNT = 1_000_000_000_000_000; // 0.001 aUSD in smallest unit
+            const MINIMUM_LOAN_AMOUNT = BigInt("1000000000000000"); // 0.001 aUSD in smallest unit
             if (params.loanAmount < MINIMUM_LOAN_AMOUNT) {
-                throw new Error(`Loan amount must be at least ${MINIMUM_LOAN_AMOUNT / 1e18} aUSD`);
+                throw new Error(`Loan amount must be at least ${Number(MINIMUM_LOAN_AMOUNT) / 1e18} aUSD`);
             }
 
             // 3. Calculate new debt after borrowing (including fee)
-            const PROTOCOL_FEE = 0.05; // 5%
-            const feeAmount = Math.floor(params.loanAmount * PROTOCOL_FEE);
+            const PROTOCOL_FEE_PERCENT = BigInt(5); // 5%
+            const feeAmount = (params.loanAmount * PROTOCOL_FEE_PERCENT) / BigInt(100);
             const netLoanAmount = params.loanAmount - feeAmount;
-            const newTotalDebt = Number(currentTrove.debt) + params.loanAmount;
+            const currentDebt = BigInt(currentTrove.debt.toString());
+            const newTotalDebt = currentDebt + params.loanAmount;
             const currentCollateral = Number(currentTrove.collateralAmount);
 
             // 4. Validate new ICR stays above minimum (115%)
             const MINIMUM_ICR = 115; // 115%
-            const estimatedPrice = 140; // Conservative SOL price estimate in USD
-            const collateralValueUSD = (currentCollateral / 1e9) * estimatedPrice;
-            const newDebtValueUSD = newTotalDebt / 1e18;
+            const solPriceUsd = await getSolPrice('SOL');
+            console.log('🔍 SOL price:', solPriceUsd);
+            if (!Number.isFinite(solPriceUsd) || solPriceUsd <= 0) {
+                throw new Error('Unable to fetch current SOL price for ICR validation. Please try again.');
+            }
+            const collateralValueUSD = (currentCollateral / 1e9) * solPriceUsd;
+            const newDebtValueUSD = Number(newTotalDebt) / 1e18;
             const newICR = (collateralValueUSD / newDebtValueUSD) * 100;
 
             console.log('📊 Borrow Loan Validation:');
             console.log('  - Current Collateral:', currentCollateral);
             console.log('  - Current Debt:', currentTrove.debt.toString());
-            console.log('  - Borrowing Amount:', params.loanAmount);
-            console.log('  - Fee Amount:', feeAmount);
-            console.log('  - Net Loan Amount:', netLoanAmount);
-            console.log('  - New Total Debt:', newTotalDebt);
+            console.log('  - Borrowing Amount:', params.loanAmount.toString());
+            console.log('  - Fee Amount:', feeAmount.toString());
+            console.log('  - Net Loan Amount:', netLoanAmount.toString());
+            console.log('  - New Total Debt:', newTotalDebt.toString());
             console.log('  - Estimated New ICR:', newICR.toFixed(2), '%');
             console.log('  - Minimum ICR Required:', MINIMUM_ICR, '%');
 
@@ -620,7 +637,7 @@ export function useSolanaProtocol() {
     };
 
     const repayLoan = async (params: {
-        repayAmount: number; // aUSD amount in smallest unit (1e18)
+        repayAmount: bigint; // aUSD amount in smallest unit (1e18)
     }) => {
         if (!isConnected || !walletProvider || !address) {
             throw new Error('Wallet not connected');
@@ -650,14 +667,14 @@ export function useSolanaProtocol() {
             }
 
             // 2. Validate repayment amount
-            if (params.repayAmount <= 0) {
+            if (params.repayAmount <= BigInt(0)) {
                 throw new Error('Repayment amount must be greater than zero');
             }
 
-            const currentDebt = Number(currentTrove.debt);
+            const currentDebt = BigInt(currentTrove.debt.toString());
 
             if (params.repayAmount > currentDebt) {
-                throw new Error(`Repayment amount (${params.repayAmount / 1e18} aUSD) exceeds current debt (${currentDebt / 1e18} aUSD)`);
+                throw new Error(`Repayment amount (${Number(params.repayAmount) / 1e18} aUSD) exceeds current debt (${Number(currentDebt) / 1e18} aUSD)`);
             }
 
             // 3. Check user stablecoin balance
@@ -666,10 +683,10 @@ export function useSolanaProtocol() {
 
             try {
                 const stablecoinAccountInfo = await getAccount(connection, userStablecoinAccount);
-                const userBalance = Number(stablecoinAccountInfo.amount);
+                const userBalance = BigInt(stablecoinAccountInfo.amount.toString());
 
                 if (params.repayAmount > userBalance) {
-                    throw new Error(`Insufficient aUSD balance. You have ${userBalance / 1e18} aUSD but need ${params.repayAmount / 1e18} aUSD`);
+                    throw new Error(`Insufficient aUSD balance. You have ${Number(userBalance) / 1e18} aUSD but need ${Number(params.repayAmount) / 1e18} aUSD`);
                 }
             } catch (err: any) {
                 if (err.message?.includes('could not find account')) {
@@ -683,24 +700,24 @@ export function useSolanaProtocol() {
             const currentCollateral = Number(currentTrove.collateralAmount);
 
             // 5. Validate partial repayment leaves debt above minimum
-            const MINIMUM_LOAN_AMOUNT = 1_000_000_000_000_000; // 0.001 aUSD
-            if (newDebt > 0 && newDebt < MINIMUM_LOAN_AMOUNT) {
+            const MINIMUM_LOAN_AMOUNT = BigInt("1000000000000000"); // 0.001 aUSD
+            if (newDebt > BigInt(0) && newDebt < MINIMUM_LOAN_AMOUNT) {
                 throw new Error(
-                    `Partial repayment would leave debt (${newDebt / 1e18} aUSD) below minimum (${MINIMUM_LOAN_AMOUNT / 1e18} aUSD). ` +
-                    `Either repay less to stay above minimum, or repay full amount (${currentDebt / 1e18} aUSD) to close the trove.`
+                    `Partial repayment would leave debt (${Number(newDebt) / 1e18} aUSD) below minimum (${Number(MINIMUM_LOAN_AMOUNT) / 1e18} aUSD). ` +
+                    `Either repay less to stay above minimum, or repay full amount (${Number(currentDebt) / 1e18} aUSD) to close the trove.`
                 );
             }
 
             console.log('📊 Repay Loan Validation:');
             console.log('  - Current Collateral:', currentCollateral);
-            console.log('  - Current Debt:', currentDebt);
-            console.log('  - Repaying Amount:', params.repayAmount);
-            console.log('  - New Debt:', newDebt);
-            console.log('  - Full Repayment:', newDebt === 0 ? 'Yes' : 'No');
+            console.log('  - Current Debt:', currentDebt.toString());
+            console.log('  - Repaying Amount:', params.repayAmount.toString());
+            console.log('  - New Debt:', newDebt.toString());
+            console.log('  - Full Repayment:', newDebt === BigInt(0) ? 'Yes' : 'No');
 
             // 6. Get neighbor hints with new debt (if not fully repaying)
             let neighborHints: PublicKey[] = [];
-            if (newDebt > 0) {
+            if (newDebt > BigInt(0)) {
                 neighborHints = await getNeighborHints(
                     connection,
                     userPublicKey,
@@ -776,7 +793,7 @@ export function useSolanaProtocol() {
     };
 
     const stake = async (params: {
-        stakeAmount: number; // aUSD in smallest unit (1e18)
+        stakeAmount: bigint; // aUSD in smallest unit (1e18)
     }) => {
         if (!isConnected || !walletProvider || !address) {
             throw new Error('Wallet not connected');
@@ -798,7 +815,7 @@ export function useSolanaProtocol() {
             const { stablecoinMint } = protocolState;
 
             console.log('🚀 Starting stake transaction...');
-            console.log('📊 Stake amount:', params.stakeAmount);
+            console.log('📊 Stake amount:', params.stakeAmount.toString());
 
             // Check if user has sufficient stablecoins
             console.log('🔍 Validating user stablecoin balance...');
@@ -810,8 +827,8 @@ export function useSolanaProtocol() {
                 console.log('✅ User stablecoin account exists');
                 console.log('💰 Balance:', userStablecoinAccount.amount.toString());
 
-                if (userStablecoinAccount.amount < BigInt(params.stakeAmount)) {
-                    throw new Error(`Insufficient stablecoins. Required: ${params.stakeAmount}, Available: ${userStablecoinAccount.amount.toString()}`);
+                if (userStablecoinAccount.amount < params.stakeAmount) {
+                    throw new Error(`Insufficient stablecoins. Required: ${params.stakeAmount.toString()}, Available: ${userStablecoinAccount.amount.toString()}`);
                 }
             } catch (error: any) {
                 if (error.code === 2002) { // TokenAccountNotFoundError
@@ -883,7 +900,7 @@ export function useSolanaProtocol() {
     };
 
     const unstake = async (params: {
-        unstakeAmount: number; // aUSD in smallest unit
+        unstakeAmount: bigint; // aUSD in smallest unit
     }) => {
         if (!isConnected || !walletProvider || !address) {
             throw new Error('Wallet not connected');
@@ -905,7 +922,7 @@ export function useSolanaProtocol() {
             const { stablecoinMint } = protocolState;
 
             console.log('🔓 Starting unstake...');
-            console.log('📊 Unstake amount:', params.unstakeAmount, 'aUSD (smallest unit)');
+            console.log('📊 Unstake amount:', params.unstakeAmount.toString(), 'aUSD (smallest unit)');
 
             // Fetch current compounded stake to validate
             const { fetchUserStakeState } = await import('@/lib/solana/fetchStakeState');
@@ -918,18 +935,18 @@ export function useSolanaProtocol() {
             console.log('📊 Current compounded stake:', stakeState.compounded_stake.toString());
 
             // Validate unstake amount
-            if (params.unstakeAmount <= 0) {
+            if (params.unstakeAmount <= BigInt(0)) {
                 throw new Error('Unstake amount must be greater than 0');
             }
 
-            const MINIMUM_LOAN_AMOUNT = 10_000_000_000_000_000; // 0.01 aUSD (from contract)
+            const MINIMUM_LOAN_AMOUNT = BigInt("10000000000000000"); // 0.01 aUSD (from contract)
             if (params.unstakeAmount < MINIMUM_LOAN_AMOUNT) {
                 throw new Error('Unstake amount below minimum (0.01 aUSD)');
             }
 
             // Check sufficient compounded stake
-            if (BigInt(params.unstakeAmount) > stakeState.compounded_stake) {
-                throw new Error(`Insufficient compounded stake. Available: ${stakeState.compounded_stake}, Requested: ${params.unstakeAmount}`);
+            if (params.unstakeAmount > stakeState.compounded_stake) {
+                throw new Error(`Insufficient compounded stake. Available: ${stakeState.compounded_stake}, Requested: ${params.unstakeAmount.toString()}`);
             }
 
             console.log('✅ Validation passed');
@@ -1054,9 +1071,10 @@ export function useSolanaProtocol() {
             return signature;
         } catch (err: any) {
             console.error('❌ Liquidate troves error:', err);
+            const friendlyMessage = mapLiquidationError(err);
             setLoading(false);
-            setError(err.message || 'Failed to liquidate troves');
-            throw err;
+            setError(friendlyMessage);
+            throw new Error(friendlyMessage);
         } finally {
             setLoading(false);
         }
@@ -1112,7 +1130,82 @@ export function useSolanaProtocol() {
             return signature;
         } catch (err: any) {
             console.error('❌ Liquidate trove error:', err);
-            setError(err.message || 'Failed to liquidate trove');
+            const friendlyMessage = mapLiquidationError(err);
+            setError(friendlyMessage);
+            throw new Error(friendlyMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const closeTrove = async () => {
+        if (!isConnected || !walletProvider || !address) {
+            throw new Error('Wallet not connected');
+        }
+        if (!connection) {
+            throw new Error('Connection not available');
+        }
+        if (!protocolState) {
+            throw new Error('Protocol state not loaded');
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const userPublicKey = new PublicKey(address);
+            const { collateralMint, stablecoinMint } = protocolState;
+
+            const { fetchUserTroveState } = await import('@/lib/solana/fetchTroveState');
+            const troveState = await fetchUserTroveState(connection, userPublicKey, 'SOL');
+
+            if (!troveState || troveState.debt <= BigInt(0)) {
+                throw new Error('Trove must have outstanding debt before it can be closed.');
+            }
+
+            const requiredDebt = troveState.debt;
+
+            const { getAssociatedTokenAddress, getAccount } = await import('@solana/spl-token');
+            const userStablecoinAccount = await getAssociatedTokenAddress(stablecoinMint, userPublicKey);
+
+            const stablecoinAccountInfo = await getAccount(connection, userStablecoinAccount);
+            if (stablecoinAccountInfo.amount < requiredDebt) {
+                throw new Error(
+                    `Insufficient aUSD balance to close trove. Required: ${Number(requiredDebt) / 1e18} aUSD, Available: ${Number(
+                        stablecoinAccountInfo.amount,
+                    ) / 1e18} aUSD`,
+                );
+            }
+
+            const { buildCloseTroveInstruction } = await import('@/lib/solana/buildInstructions');
+            const { instruction } = await buildCloseTroveInstruction(userPublicKey, collateralMint, stablecoinMint, 'SOL');
+
+            const tx = new Transaction().add(instruction);
+            tx.feePayer = walletProvider.publicKey;
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+            tx.recentBlockhash = blockhash;
+
+            console.log('🔍 Simulating close_trove transaction...');
+            const simulation = await connection.simulateTransaction(tx);
+            console.log('📊 Simulation result:');
+            console.log('- Error:', simulation.value.err);
+            console.log('- Logs:', simulation.value.logs);
+            console.log('- Units consumed:', simulation.value.unitsConsumed);
+
+            if (simulation.value.err) {
+                throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
+            }
+
+            console.log('✍️ Sending close_trove transaction to wallet for signing...');
+            const signature = await walletProvider.signAndSendTransaction(tx);
+
+            console.log('✅ close_trove transaction sent:', signature);
+            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight });
+            console.log('✅ close_trove transaction confirmed!');
+            return signature;
+        } catch (err: any) {
+            console.error('❌ Close trove error:', err);
+            setError(err.message || 'Failed to close trove');
             throw err;
         } finally {
             setLoading(false);
@@ -1154,7 +1247,7 @@ export function useSolanaProtocol() {
             console.log('Redeem amount:', params.redeemAmount, 'aUSD');
 
             // Convert aUSD to smallest unit (18 decimals)
-            const redeemAmountInSmallestUnit = BigInt(Math.floor(params.redeemAmount * 1e18));
+            const redeemAmountInSmallestUnit = decimalToBigInt(params.redeemAmount, 18);
 
             // 1. Fetch all troves from devnet
             console.log('📋 Fetching all troves from devnet...');
@@ -1392,6 +1485,7 @@ export function useSolanaProtocol() {
         liquidateTrove,
         redeem,
         withdrawLiquidationGains,
+        closeTrove,
         loading,
         error,
     };

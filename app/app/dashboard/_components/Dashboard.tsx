@@ -107,7 +107,7 @@ export default function Dashboard() {
         </motion.div>
       )}
       <div className="flex gap-4 flex-col md:flex-row md:gap-24 z-10 relative md:min-h-[720px] ">
-        <StatisticSide basePrice={1} />
+        <StatisticSide />
         <TabsSide setTabPosition={changeTabPosition} />
       </div>
       <Footer />

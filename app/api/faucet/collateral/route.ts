@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { getOrCreateAssociatedTokenAccount, getMint, mintTo } from '@solana/spl-token';
+import { decodeSecretKey } from '@/lib/solana/secretKeys';
 
 // Environment variables (set in your deployment/runtime)
 // - SOLANA_RPC: RPC endpoint (defaults to devnet)
@@ -9,20 +10,7 @@ import { getOrCreateAssociatedTokenAccount, getMint, mintTo } from '@solana/spl-
 
 const RPC_ENDPOINT = process.env.SOLANA_RPC ?? 'https://api.devnet.solana.com';
 const MINT_AUTHORITY_SECRET = process.env.FAUCET_MINT_AUTHORITY_SECRET;
-const COLLATERAL_MINT = process.env.COLLATERAL_MINT ?? 'Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz';
-
-function decodeSecretKey(secret: string): Keypair {
-  try {
-    // Try JSON array
-    const arr = JSON.parse(secret) as number[];
-    return Keypair.fromSecretKey(Uint8Array.from(arr));
-  } catch {
-    // Fallback: base58 (lazy import to avoid tree-shaking issues)
-    const bs58 = require('bs58');
-    const decoded = bs58.decode(secret);
-    return Keypair.fromSecretKey(decoded);
-  }
-}
+const COLLATERAL_MINT = process.env.COLLATERAL_MINT ?? 'E8FKTy79cbAcZNKsqxbYD4kToZWN637t5WoN23qc5DP9';
 
 export async function POST(req: Request) {
   try {

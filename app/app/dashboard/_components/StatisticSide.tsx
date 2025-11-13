@@ -1,39 +1,28 @@
 import StatisticCard from "@/components/Cards/StatisticCard";
 import { ChevronUpIcon } from "@/components/Icons/Icons";
 import useIsMobile from "@/hooks/useIsMobile";
-import useChainAdapter from "@/hooks/useChainAdapter";
+import { useProtocolStats } from "@/hooks/useProtocolStats";
 import { motion } from "framer-motion";
-import { isNil } from "lodash";
-import Link from "next/link";
 import React, { FC, useEffect, useState } from "react";
-// import { usePageData } from "@/contexts/DashboardProvider";
-import { ChainName } from "@/enums/Chain";
 import RenderContent from "./renderContent";
-import { defaultContent, injContent } from "@/data/injContent";
-
-interface Props {
-  basePrice: number;
-}
+import { defaultContent } from "@/data/injContent";
 
 const INTERVAL_TIME = 8000;
 
-const StatisticSide: FC<Props> = ({ basePrice }) => {
+const StatisticSide: FC = () => {
   const isMobile = useIsMobile();
-  const selectedChainName = ChainName.SOLANA;
-  // const { baseCoin, walletInfo, selectedChainName } = useChainAdapter();
   const [showStatistic, setShowStatistic] = useState<boolean>(true);
-  const [content, setContent] = useState(defaultContent);
-  // useEffect(() => {
-  //   setContent(
-  //     ChainName.SOLANA === selectedChainName ? injContent : defaultContent
-  //   );
-  // }, [selectedChainName]);
+  const content = defaultContent;
   // const { pageData } = usePageData();
   const [showContentIdx, setShowContentIdx] = useState(0);
   const [hovering, setHovering] = useState(false);
 
+  const { stats, loading, error } = useProtocolStats();
+
   useEffect(() => {
-    isMobile && setShowStatistic(false);
+    if (isMobile) {
+      setShowStatistic(false);
+    }
   }, [isMobile]);
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -61,6 +50,20 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
   //   Number(pageData.baseTotalCollateralAmount).toFixed(6) + " " + baseCoin?.name
   // );
 
+  const managementFeeDisplay = stats?.managementFee ?? (loading ? "Loading..." : error ? "—" : "0%");
+  const liquidationThresholdDisplay =
+    stats?.liquidationThreshold ?? (loading ? "Loading..." : error ? "—" : "0%");
+  const tvlDisplay =
+    stats?.totalValueLocked ?? (loading ? "Loading..." : error ? "—" : "$0.00");
+  const stabilityPoolDisplay =
+    stats?.stabilityPoolAusd ?? (loading ? "Loading..." : error ? "—" : "0 AUSD");
+  const troveCountDisplay =
+    stats?.troves ?? (loading ? "Loading..." : error ? "—" : "0");
+  const collateralRatioDisplay =
+    stats?.totalCollateralRatio ?? (loading ? "Loading..." : error ? "—" : "0%");
+  const ausdSupplyDisplay =
+    stats?.totalAusdSupply ?? (loading ? "Loading..." : error ? "—" : "0 AUSD");
+
   return (
     <div
       className="md:max-w-[400px] w-full md:w-[379px] px-4 pt-6 md:p-0 group"
@@ -85,9 +88,8 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
               onClick={() => {
                 setShowContentIdx(idx);
               }}
-              className={`md:w-2 md:h-2 w-6 h-1 rounded-sm ${
-                showContentIdx === idx ? "bg-[#E4462D]" : "bg-ghost-white"
-              }`}
+              className={`md:w-2 md:h-2 w-6 h-1 rounded-sm ${showContentIdx === idx ? "bg-[#E4462D]" : "bg-ghost-white"
+                }`}
             />
           );
         })}
@@ -101,9 +103,8 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
       >
         Protocol statistics
         <ChevronUpIcon
-          className={`w-5 h-5 mt-0.5 transition-all duration-300 ${
-            showStatistic ? "rotate-180" : ""
-          }`}
+          className={`w-5 h-5 mt-0.5 transition-all duration-300 ${showStatistic ? "rotate-180" : ""
+            }`}
         />
       </button>
       {showStatistic && (
@@ -115,25 +116,21 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
         >
           <StatisticCard
             title="Management Fee"
-            description="0.5%"
+            description={managementFeeDisplay}
             className="w-[191px] h-14"
             tooltip="This amount is deducted from the collateral amount as a management fee. There are no recurring fees for borrowing, which is thus interest-free."
             tooltipPlacement="bottom"
           />
           <StatisticCard
             title="Liquidation Threshold"
-            description="115%"
+            description={liquidationThresholdDisplay}
             className="w-[191px] h-14"
             tooltip="Liquidation Threshold Ratio"
             tooltipPlacement="left-bottom-corner"
           />
           <StatisticCard
             title="Total Value Locked"
-            // description={
-            //   isNil(baseCoin)
-            //     ? "-"
-            //     : `${Number(pageData.baseTotalCollateralAmount).toFixed(6)}`
-            // }
+            description={tvlDisplay}
             className="w-[191px] h-14"
             tooltip="The Total Value Locked (TVL) is the total value of sei locked as collateral in the system."
             tooltipPlacement="bottom"
@@ -143,20 +140,14 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
           <StatisticCard
             title="AUSD in Stability Pool"
             tooltipPlacement="left-bottom"
-            // description={
-            //   isNil(baseCoin)
-            //     ? "-"
-            //     : Number(pageData.totalStakedAmount).toFixed(3).toString()
-            // }
+            description={stabilityPoolDisplay}
             className="w-[191px] h-14"
             tooltip="The total AUSD currently held in the Stability Pool."
             isNumeric
           />
           <StatisticCard
             title="Troves"
-            // description={`${
-            //   isNil(walletInfo) ? "-" : pageData.totalTrovesAmount
-            // }`}
+            description={troveCountDisplay}
             className="w-[191px] h-14"
             tooltip="The total number of active Troves in the system."
             tooltipPlacement="right-top"
@@ -164,33 +155,13 @@ const StatisticSide: FC<Props> = ({ basePrice }) => {
           <StatisticCard
             title="Total Collateral Ratio"
             tooltipPlacement="left-top"
-            // description={`${
-            //   isNil(baseCoin)
-            //     ? "-"
-            //     : isFinite(
-            //         Number(
-            //           ((pageData.baseTotalCollateralAmount * basePrice) /
-            //             pageData.totalDebtAmount) *
-            //             100
-            //         )
-            //       )
-            //     ? Number(
-            //         ((pageData.baseTotalCollateralAmount * basePrice) /
-            //           pageData.totalDebtAmount) *
-            //           100
-            //       ).toFixed(3)
-            //     : 0
-            // } %`}
+            description={collateralRatioDisplay}
             className="w-[191px] h-14"
             tooltip={`The ratio of the Dollar value of the entire system collateral at the current Solana:AUSD price, to the entire system debt.`}
           />
           <StatisticCard
             title="AUSD Supply"
-            // description={
-            //   isNil(baseCoin)
-            //     ? "-"
-            //     : Number(pageData.totalAusdSupply).toFixed(3).toString()
-            // }
+            description={ausdSupplyDisplay}
             className="w-[191px] h-14"
             tooltip="The total AUSD minted by the Aeroscraper Protocol."
             tooltipPlacement="top"
