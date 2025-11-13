@@ -49,7 +49,8 @@ pub struct RemoveCollateral<'info> {
 
     #[account(
         mut,
-        constraint = user_collateral_account.mint == collateral_mint.key() @ AerospacerProtocolError::InvalidMint
+        constraint = user_collateral_account.mint == collateral_mint.key() @ AerospacerProtocolError::InvalidMint,
+        constraint = user_collateral_account.owner == user.key() @ AerospacerProtocolError::Unauthorized
     )]
     pub user_collateral_account: Account<'info, TokenAccount>,
 
@@ -161,54 +162,72 @@ pub fn handler(ctx: Context<RemoveCollateral>, params: RemoveCollateralParams) -
         Ok::<_, Error>(result)
     }?;
     
-    // CRITICAL: Validate ICR ordering if neighbor hints provided
-    // Production clients MUST provide neighbor hints via remainingAccounts for proper sorted list maintenance
-    // Pattern: [prev_LiquidityThreshold, next_LiquidityThreshold] or [prev_LT] or [next_LT] or []
-    // Optional for backward compatibility with tests, but REQUIRED in production
-    if !ctx.remaining_accounts.is_empty() {
-        use crate::sorted_troves;
+    // CRITICAL: Validate ICR ordering and minimum collateral ratio
+    // Neighbor hints should be provided via params.prev_node_id and params.next_node_id
+    // and corresponding accounts via remainingAccounts
+    use crate::sorted_troves;
+    
+    let prev_icr = if let Some(prev_id) = params.prev_node_id {
+        require!(
+            !ctx.remaining_accounts.is_empty(),
+            AerospacerProtocolError::InvalidList
+        );
+        let prev_lt = &ctx.remaining_accounts[0];
+        let prev_data = prev_lt.try_borrow_data()?;
+        let prev_threshold = LiquidityThreshold::try_deserialize(&mut &prev_data[..])?;
         
-        msg!("Validating ICR ordering with {} neighbor account(s)", ctx.remaining_accounts.len());
+        require!(
+            prev_threshold.owner == prev_id,
+            AerospacerProtocolError::InvalidList
+        );
         
-        let prev_icr = if ctx.remaining_accounts.len() >= 1 {
-            let prev_lt = &ctx.remaining_accounts[0];
-            let prev_data = prev_lt.try_borrow_data()?;
-            let prev_threshold = LiquidityThreshold::try_deserialize(&mut &prev_data[..])?;
-            let prev_owner = prev_threshold.owner;
-            let prev_ratio = prev_threshold.ratio;
-            drop(prev_data);
-            
-            // Verify this is a real PDA, not a fake account
-            sorted_troves::verify_liquidity_threshold_pda(prev_lt, prev_owner, ctx.program_id)?;
-            
-            Some(prev_ratio)
-        } else {
-            None
-        };
+        let prev_ratio = prev_threshold.ratio;
+        drop(prev_data);
         
-        let next_icr = if ctx.remaining_accounts.len() >= 2 {
-            let next_lt = &ctx.remaining_accounts[1];
-            let next_data = next_lt.try_borrow_data()?;
-            let next_threshold = LiquidityThreshold::try_deserialize(&mut &next_data[..])?;
-            let next_owner = next_threshold.owner;
-            let next_ratio = next_threshold.ratio;
-            drop(next_data);
-            
-            // Verify this is a real PDA, not a fake account
-            sorted_troves::verify_liquidity_threshold_pda(next_lt, next_owner, ctx.program_id)?;
-            
-            Some(next_ratio)
-        } else {
-            None
-        };
+        sorted_troves::verify_liquidity_threshold_pda(prev_lt, prev_id, ctx.program_id)?;
         
-        // Validate ordering BEFORE updating state
+        Some(prev_ratio)
+    } else {
+        None
+    };
+    
+    let next_icr = if let Some(next_id) = params.next_node_id {
+        let account_idx = if params.prev_node_id.is_some() { 1 } else { 0 };
+        require!(
+            ctx.remaining_accounts.len() > account_idx,
+            AerospacerProtocolError::InvalidList
+        );
+        let next_lt = &ctx.remaining_accounts[account_idx];
+        let next_data = next_lt.try_borrow_data()?;
+        let next_threshold = LiquidityThreshold::try_deserialize(&mut &next_data[..])?;
+        
+        require!(
+            next_threshold.owner == next_id,
+            AerospacerProtocolError::InvalidList
+        );
+        
+        let next_ratio = next_threshold.ratio;
+        drop(next_data);
+        
+        sorted_troves::verify_liquidity_threshold_pda(next_lt, next_id, ctx.program_id)?;
+        
+        Some(next_ratio)
+    } else {
+        None
+    };
+    
+    if prev_icr.is_some() || next_icr.is_some() {
         sorted_troves::validate_icr_ordering(result.new_icr, prev_icr, next_icr)?;
         msg!("✓ ICR ordering validated successfully");
     } else {
         msg!("⚠ WARNING: No neighbor hints provided - skipping ICR ordering validation");
-        msg!("⚠ Production clients MUST provide neighbor hints for sorted list integrity");
+        msg!("⚠ Production deployments should enforce neighbor hints for sorted list integrity");
     }
+    
+    require!(
+        result.new_icr >= ctx.accounts.state.minimum_collateral_ratio,
+        AerospacerProtocolError::CollateralBelowMinimum
+    );
     
     // Update the actual accounts with the results
     ctx.accounts.user_collateral_amount.amount = result.new_collateral_amount;

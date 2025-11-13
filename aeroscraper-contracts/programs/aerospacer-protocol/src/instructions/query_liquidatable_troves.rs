@@ -19,15 +19,20 @@ pub struct QueryLiquidatableTroves {
 /// Handler for query_liquidatable_troves instruction
 /// Returns liquidatable troves via Anchor return data (set_return_data)
 /// 
-/// # Remaining Accounts Pattern
-/// Caller must pass Node and LiquidityThreshold account pairs for traversal:
-/// - [0]: First Node account (head of sorted list)
-/// - [1]: First LiquidityThreshold account
-/// - [2]: Second Node account
-/// - [3]: Second LiquidityThreshold account
+/// # Remaining Accounts Pattern (Triplets)
+/// Caller must pass pre-sorted trove account triplets via remainingAccounts:
+/// - [0]: First UserDebtAmount account (PDA)
+/// - [1]: First UserCollateralAmount account (PDA)
+/// - [2]: First LiquidityThreshold account (PDA, contains ICR)
+/// - [3]: Second UserDebtAmount account (PDA)
+/// - [4]: Second UserCollateralAmount account (PDA)
+/// - [5]: Second LiquidityThreshold account (PDA, contains ICR)
 /// - ...and so on for all troves to check
 /// 
 /// The function will stop early once it finds ICR >= threshold (sorted list optimization)
+/// 
+/// # Security
+/// All accounts are verified to be real PDAs owned by the program to prevent fake account injection attacks
 /// 
 /// # Returns
 /// Vec<Pubkey> of liquidatable trove owners via AnchorSerialize return data
@@ -47,9 +52,11 @@ pub fn handler(ctx: Context<QueryLiquidatableTroves>, params: QueryLiquidatableT
     msg!("Max troves to return: {}", params.max_troves);
     
     // Validate pre-sorted list provided by client via remainingAccounts
+    // Pass program_id for PDA verification (security)
     let mut liquidatable = get_liquidatable_troves(
         params.liquidation_threshold,
         ctx.remaining_accounts,
+        ctx.program_id,
     )?;
     
     // Limit results to max_troves

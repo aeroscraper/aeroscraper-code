@@ -9,7 +9,7 @@ async function main() {
     const recipientPublicKey = new PublicKey("8wXSPkdoUMeXqbctj92Vm5RVgL6W2HMYjti42mwqu7Y3");
 
     // Devnet collateral mint (from protocol-core.ts line 218)
-    const collateralMint = new PublicKey("Hygyfy8RBxLvoz5b3ffsg9PAvEkT3BJXXdTpVu6ftZYz");
+    const collateralMint = new PublicKey("E8FKTy79cbAcZNKsqxbYD4kToZWN637t5WoN23qc5DP9");
 
     const provider = anchor.AnchorProvider.env();
     const admin = provider.wallet as anchor.Wallet;

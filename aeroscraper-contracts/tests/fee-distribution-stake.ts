@@ -35,10 +35,10 @@ describe("Fee Contract - Stability Pool Distribution Mode", () => {
   
   // Load fee addresses from key files
   const feeAddr1Keypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/keys/fee-addresses/fee_address_1.json", "utf8")))
+    new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aeroscraper-contracts/keys/fee-addresses/fee_address_1.json", "utf8")))
   );
   const feeAddr2Keypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/keys/fee-addresses/fee_address_2.json", "utf8")))
+    new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aeroscraper-contracts/keys/fee-addresses/fee_address_2.json", "utf8")))
   );
   const FEE_ADDR_1 = feeAddr1Keypair.publicKey;
   const FEE_ADDR_2 = feeAddr2Keypair.publicKey;

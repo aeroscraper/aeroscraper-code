@@ -64,27 +64,32 @@ pub fn validate_icr_ordering(
 /// Contract validates:
 /// 1. Each trove's ICR < liquidation_threshold
 /// 2. ICRs are properly sorted (ascending order)
+/// 3. All accounts are real PDAs owned by the program (security)
 /// 
 /// # Arguments
 /// * `liquidation_threshold` - ICR threshold below which troves are liquidatable (typically 110)
 /// * `remaining_accounts` - Pre-sorted trove accounts [UserDebtAmount, UserCollateralAmount, LiquidityThreshold] triplets
+/// * `program_id` - Program ID for PDA verification
 /// 
 /// # Returns
 /// Vec<Pubkey> of validated liquidatable trove owners
 /// 
 /// # Remaining Accounts Pattern (per trove)
 /// For each trove in the liquidation list:
-/// - [i*3 + 0]: UserDebtAmount account
-/// - [i*3 + 1]: UserCollateralAmount account
-/// - [i*3 + 2]: LiquidityThreshold account (contains ICR)
+/// - [i*3 + 0]: UserDebtAmount account (PDA owned by program)
+/// - [i*3 + 1]: UserCollateralAmount account (PDA owned by program)
+/// - [i*3 + 2]: LiquidityThreshold account (PDA owned by program, contains ICR)
 /// 
-/// # Validation
+/// # Security Validation
+/// - Verifies all accounts are owned by the program
+/// - Verifies LiquidityThreshold is a real PDA (prevents fake account injection)
 /// - Checks ICR < threshold for each trove
 /// - Validates ascending ICR order (sorted from riskiest to safest)
 /// - Stops at first trove with ICR >= threshold (early termination optimization)
 pub fn get_liquidatable_troves(
     liquidation_threshold: u64,
     remaining_accounts: &[AccountInfo],
+    program_id: &Pubkey,
 ) -> Result<Vec<Pubkey>> {
     let mut liquidatable = Vec::new();
     
@@ -110,8 +115,23 @@ pub fn get_liquidatable_troves(
         
         // Get accounts for this trove
         let debt_account = &remaining_accounts[base_idx];
-        let _collateral_account = &remaining_accounts[base_idx + 1]; // Reserved for future use
+        let collateral_account = &remaining_accounts[base_idx + 1];
         let lt_account = &remaining_accounts[base_idx + 2];
+        
+        // SECURITY: Verify program ownership for all accounts
+        // Use crate::ID (canonical program ID) for cross-program invocation compatibility
+        require!(
+            debt_account.owner == &crate::ID,
+            AerospacerProtocolError::Unauthorized
+        );
+        require!(
+            collateral_account.owner == &crate::ID,
+            AerospacerProtocolError::Unauthorized
+        );
+        require!(
+            lt_account.owner == &crate::ID,
+            AerospacerProtocolError::Unauthorized
+        );
         
         // Deserialize UserDebtAmount to get owner
         let debt_data = debt_account.try_borrow_data()?;
@@ -130,6 +150,10 @@ pub fn get_liquidatable_troves(
             AerospacerProtocolError::InvalidList
         );
         drop(lt_data);
+        
+        // SECURITY: Verify LiquidityThreshold is a real PDA, not a fake account
+        // This prevents attackers from injecting fabricated accounts with arbitrary ICRs
+        verify_liquidity_threshold_pda(lt_account, owner, program_id)?;
         
         msg!("Trove {}: owner={}, ICR={}", i, owner, current_icr);
         

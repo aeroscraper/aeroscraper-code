@@ -9,9 +9,10 @@ pub struct StateAccount {
     pub oracle_state_addr: Pubkey,           // Oracle state account address  
     pub fee_distributor_addr: Pubkey,        // aerospacer-fees program ID
     pub fee_state_addr: Pubkey,              // aerospacer-fees state account address
-    pub minimum_collateral_ratio: u8,
+    pub minimum_collateral_ratio: u64,
     pub protocol_fee: u8,
     pub stable_coin_addr: Pubkey,
+    pub stable_coin_code_id: u64,
     pub total_debt_amount: u64, // Equivalent to Uint256
     pub total_stake_amount: u64, // Equivalent to Uint256
     
@@ -21,7 +22,7 @@ pub struct StateAccount {
 }
 
 impl StateAccount {
-    pub const LEN: usize = 8 + 32 + 32 + 32 + 32 + 32 + 1 + 1 + 32 + 8 + 8 + 16 + 8; // Added oracle_state_addr + fee_state_addr
+    pub const LEN: usize = 8 + 32 + 32 + 32 + 32 + 32 + 8 + 1 + 32 + 8 + 8 + 8 + 16 + 8; // Added oracle_state_addr + fee_state_addr + stable_coin_code_id, minimum_collateral_ratio now u64
     
     // Scale factor for precision in P/S calculations (10^18, same as Liquity)
     pub const SCALE_FACTOR: u128 = 1_000_000_000_000_000_000;
@@ -35,11 +36,12 @@ impl StateAccount {
 #[account]
 pub struct UserDebtAmount {
     pub owner: Pubkey,
-    pub amount: u64, // Equivalent to Uint256
+    pub amount: u64,
+    pub l_debt_snapshot: u128,
 }
 
 impl UserDebtAmount {
-    pub const LEN: usize = 8 + 32 + 8;
+    pub const LEN: usize = 8 + 32 + 8 + 16;
     pub fn seeds(owner: &Pubkey) -> [&[u8]; 2] {
         [b"user_debt_amount", owner.as_ref()]
     }
@@ -50,11 +52,12 @@ impl UserDebtAmount {
 pub struct UserCollateralAmount {
     pub owner: Pubkey,
     pub denom: String,
-    pub amount: u64, // Equivalent to Uint256
+    pub amount: u64,
+    pub l_collateral_snapshot: u128,
 }
 
 impl UserCollateralAmount {
-    pub const LEN: usize = 8 + 32 + 32 + 8; // String length needs to be considered
+    pub const LEN: usize = 8 + 32 + 32 + 8 + 16;
     pub fn seeds<'a>(owner: &'a Pubkey, denom: &'a str) -> [&'a [u8]; 3] {
         [b"user_collateral_amount", owner.as_ref(), denom.as_bytes()]
     }
@@ -95,11 +98,13 @@ impl LiquidityThreshold {
 #[account]
 pub struct TotalCollateralAmount {
     pub denom: String,
-    pub amount: u64, // Equivalent to Uint256
+    pub amount: u64,
+    pub l_collateral: u128,
+    pub l_debt: u128,
 }
 
 impl TotalCollateralAmount {
-    pub const LEN: usize = 8 + 32 + 8; // String length needs to be considered
+    pub const LEN: usize = 8 + 32 + 8 + 16 + 16;
     pub fn seeds(denom: &str) -> [&[u8]; 2] {
         [b"total_collateral_amount", denom.as_bytes()]
     }
@@ -183,7 +188,7 @@ impl UserCollateralSnapshot {
 // Constants to match INJECTIVE exactly
 pub const MINIMUM_LOAN_AMOUNT: u64 = 1_000_000_000_000_000; // 0.001 aUSD with 18 decimals
 pub const MINIMUM_COLLATERAL_AMOUNT: u64 = 1_000_000; // 0.001 SOL with 9 decimals
-pub const DEFAULT_MINIMUM_COLLATERAL_RATIO: u8 = 115; // 115%
+pub const DEFAULT_MINIMUM_COLLATERAL_RATIO: u64 = 115_000_000; // 115% in micro-percent (115 * 1_000_000)
 pub const DEFAULT_PROTOCOL_FEE: u8 = 5; // 5%
 
 // Decimal fractions to match INJECTIVE

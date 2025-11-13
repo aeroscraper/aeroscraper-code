@@ -8,9 +8,9 @@ async function updateProtocolAddresses() {
   anchor.setProvider(provider);
 
   // Use fresh program IDs (ensure these match Anchor.toml and deployed programs)
-  const PROTOCOL_PROGRAM_ID = new PublicKey("9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ");
-  const ORACLE_PROGRAM_ID = new PublicKey("8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M");
-  const FEES_PROGRAM_ID = new PublicKey("AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ");
+  const PROTOCOL_PROGRAM_ID = new PublicKey("HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk");
+  const ORACLE_PROGRAM_ID = new PublicKey("8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K");
+  const FEES_PROGRAM_ID = new PublicKey("FyBGDrxVAdTnwKeXFrhQR1UyyJhqbfQmZrXWqZuhYkAj");
 
   // Load IDLs (prefer fetching from chain; fallback to local target/idl)
   const path = require("path");

@@ -234,7 +234,11 @@ describe("Protocol Contract - Initialization Tests", () => {
       // Fetch the existing protocol state
       const state = await protocolProgram.account.stateAccount.fetch(protocolState);
 
-      assert.equal(state.minimumCollateralRatio, 115, "MCR should be 115%");
+      const EXPECTED_MCR = new anchor.BN(115_000_000);
+      assert(
+        state.minimumCollateralRatio.eq(EXPECTED_MCR),
+        `MCR should be 115% in micro-percent units`,
+      );
       assert.equal(state.protocolFee, 5, "Protocol fee should be 5%");
 
       // Note: totalDebtAmount may not be 0 on devnet due to existing state from previous test runs

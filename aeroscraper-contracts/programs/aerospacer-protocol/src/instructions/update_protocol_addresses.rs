@@ -28,21 +28,61 @@ pub fn handler(ctx: Context<UpdateProtocolAddresses>, params: UpdateProtocolAddr
     let state = &mut ctx.accounts.state;
     
     if let Some(addr) = params.oracle_helper_addr {
+        require!(
+            addr != Pubkey::default(),
+            AerospacerProtocolError::InvalidAddress
+        );
+        require!(
+            addr != state.oracle_state_addr && 
+            addr != state.fee_distributor_addr && 
+            addr != state.fee_state_addr,
+            AerospacerProtocolError::InvalidAddress
+        );
         state.oracle_helper_addr = addr;
         msg!("Oracle helper address updated: {}", addr);
     }
     
     if let Some(addr) = params.oracle_state_addr {
+        require!(
+            addr != Pubkey::default(),
+            AerospacerProtocolError::InvalidAddress
+        );
+        require!(
+            addr != state.oracle_helper_addr && 
+            addr != state.fee_distributor_addr && 
+            addr != state.fee_state_addr,
+            AerospacerProtocolError::InvalidAddress
+        );
         state.oracle_state_addr = addr;
         msg!("Oracle state address updated: {}", addr);
     }
     
     if let Some(addr) = params.fee_distributor_addr {
+        require!(
+            addr != Pubkey::default(),
+            AerospacerProtocolError::InvalidAddress
+        );
+        require!(
+            addr != state.oracle_helper_addr && 
+            addr != state.oracle_state_addr && 
+            addr != state.fee_state_addr,
+            AerospacerProtocolError::InvalidAddress
+        );
         state.fee_distributor_addr = addr;
         msg!("Fee distributor address updated: {}", addr);
     }
     
     if let Some(addr) = params.fee_state_addr {
+        require!(
+            addr != Pubkey::default(),
+            AerospacerProtocolError::InvalidAddress
+        );
+        require!(
+            addr != state.oracle_helper_addr && 
+            addr != state.oracle_state_addr && 
+            addr != state.fee_distributor_addr,
+            AerospacerProtocolError::InvalidAddress
+        );
         state.fee_state_addr = addr;
         msg!("Fee state address updated: {}", addr);
     }
