@@ -26,13 +26,13 @@ describe("Fee Contract - Address Management Tests", () => {
 
     // Load fee addresses from key files
     const feeAddr1Keypair = Keypair.fromSecretKey(
-        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/keys/fee-addresses/fee_address_1.json", "utf8")))
+        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aeroscraper-contracts/keys/fee-addresses/fee_address_1.json", "utf8")))
     );
     const feeAddr2Keypair = Keypair.fromSecretKey(
-        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/keys/fee-addresses/fee_address_2.json", "utf8")))
+        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aeroscraper-contracts/keys/fee-addresses/fee_address_2.json", "utf8")))
     );
     const stakingAddrKeypair = Keypair.fromSecretKey(
-        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aerospacer-solana/keys/staking-address/staking_address.json", "utf8")))
+        new Uint8Array(JSON.parse(fs.readFileSync("/home/taha/Documents/Projects/Aeroscraper/aeroscraper-contracts/keys/staking-address/staking_address.json", "utf8")))
     );
 
     const FEE_ADDR_1 = feeAddr1Keypair.publicKey;

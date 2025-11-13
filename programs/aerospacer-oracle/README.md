@@ -10,7 +10,7 @@ The `aerospacer-oracle` contract is a production-ready Solana program that manag
 
 ### Program ID
 ```
-8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M
+8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K
 ```
 
 ### Core Components

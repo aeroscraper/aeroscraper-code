@@ -13,7 +13,7 @@ import {
 } from "@solana/spl-token";
 
 // EDIT: put your protocol program ID here (must match declare_id! in lib.rs)
-const PROTOCOL_PROGRAM_ID = new PublicKey("9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ");
+const PROTOCOL_PROGRAM_ID = new PublicKey("HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk");
 
 // Helper: derive PDAs
 function deriveStatePda(): [PublicKey, number] {

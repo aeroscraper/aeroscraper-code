@@ -144,14 +144,8 @@ describe("Protocol Contract - Liquidation Tests", () => {
   ): Promise<void> {
     console.log(`Creating undercollateralized trove with ICR ${targetICR}%`);
 
-    // ICR = 105% means: collateral_value / debt_value = 1.05
-    // Using SOL price = 100 USD for simplicity (from oracle)
-    // For ICR = 105%: collateral_value = 105, debt = 100
-    // Scaled to fit u64: 5 aUSD = 5 * 10^18 (fits in u64), keep ~105% ICR by scaling collateral
-    // Debt = 5 aUSD = 5 * 10^18 lamports
-    // Collateral = 0.0525 SOL = 0.0525 * 10^9 lamports
-    const debt = new BN("5000000000000000000"); // 5 aUSD (18 decimals)
-    const collateralAmount = new BN("52500000"); // 0.0525 SOL (9 decimals)
+    const debt = new BN("50000000000000000");
+    const collateralAmount = new BN("12500000");
 
     // Fund user with SOL for transaction fees (use liquidator as funder)
     const userBalance = await ctx.provider.connection.getBalance(user.publicKey);
@@ -469,6 +463,8 @@ describe("Protocol Contract - Liquidation Tests", () => {
     it("Should liquidate a single undercollateralized trove using named accounts", async () => {
       console.log("📋 Starting single trove liquidation (liquidate_trove) test...");
 
+      await createUndercollateralizedTroveForUser(liquidator, 105);
+
       // Step 1: Fetch all troves and find the first undercollateralized one
       const allTroves = await fetchAllTroves(ctx.provider.connection, ctx.protocolProgram, "SOL");
       const liquidatableTroves = allTroves.filter(t => t.icr < BigInt(110000000));
@@ -514,45 +510,92 @@ describe("Protocol Contract - Liquidation Tests", () => {
 
       // In tests/protocol-liquidation.ts, before .liquidateTrove(...)
       const targetDebt = (await ctx.protocolProgram.account.userDebtAmount.fetch(pdas.userDebtAmount)).amount;
+      console.log("targetDebt", targetDebt);
 
-      // Prepare a staker (user1) and ensure they have aUSD by opening a small trove first
-      const { user1 } = loadTestUsers();
+      const adminStablecoinAccount = ctx.stabilityPoolTokenAccount;
+      const adminPdas = derivePDAs("SOL", ctx.admin.publicKey, ctx.protocolProgram.programId);
 
-      // Open a small trove for user1 to mint aUSD (meets minimums; adjust if needed for devnet)
-      // 2 aUSD (18 decimals) and 0.3 SOL (9 decimals) as collateral
-      // await openTroveForUser(
-      //   ctx,
-      //   user1,
-      //   new BN("300000000"),                // 0.300000000 SOL
-      //   new BN("2000000000000000000"),     // 2.0 aUSD
-      //   "SOL"
-      // );
-
-      // Derive PDAs for user1 stake and protocol vault
-      const user1Pdas = derivePDAs("SOL", user1.publicKey, ctx.protocolProgram.programId);
-
-      // user1's aUSD ATA
-      const user1StablecoinAccount = await getAssociatedTokenAddress(
-        ctx.stablecoinMint,
-        user1.publicKey
+      const vaultBalanceInfo =
+        await ctx.provider.connection.getTokenAccountBalance(
+          protocolStablecoinVault
+        );
+      const vaultBalance = new BN(vaultBalanceInfo.value.amount ?? "0");
+      console.log(
+        "  Protocol stablecoin vault balance before funding:",
+        vaultBalance.toString()
       );
 
-      // Stake enough aUSD to cover the target trove's debt (cap by user1 balance if needed)
-      // For simplicity, stake exactly targetDebt; if user1 has less, the stake will fail.
-      await ctx.protocolProgram.methods
-        .stake({ amount: targetDebt })
-        .accounts({
-          user: user1.publicKey,
-          userStakeAmount: user1Pdas.userStakeAmount,
-          state: ctx.protocolState,
-          userStablecoinAccount: user1StablecoinAccount,
-          protocolStablecoinAccount: user1Pdas.protocolStablecoinAccount,
-          stableCoinMint: ctx.stablecoinMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([user1])
-        .rpc();
+      const adminStableBalanceInfo =
+        await ctx.provider.connection.getTokenAccountBalance(
+          adminStablecoinAccount
+        );
+      console.log(
+        "  Admin (stability pool owner) aUSD balance:",
+        adminStableBalanceInfo.value.amount
+      );
+
+      let remainingDeficit = targetDebt.sub(vaultBalance);
+      if (remainingDeficit.lte(new BN(0))) {
+        remainingDeficit = new BN(0);
+        console.log(
+          "  ✅ Protocol stablecoin vault already holds sufficient aUSD to burn the debt."
+        );
+      } else {
+        console.log(
+          "  Stability pool deficit (lamports of aUSD):",
+          remainingDeficit.toString()
+        );
+
+        const adminStableBalance = new BN(
+          adminStableBalanceInfo.value.amount ?? "0"
+        );
+        if (adminStableBalance.lt(remainingDeficit)) {
+          throw new Error(
+            `Not enough aUSD available to seed the stability pool automatically. Needed ${remainingDeficit.toString()} but admin balance is ${adminStableBalance.toString()}.`
+          );
+        }
+
+        console.log(
+          `  Staking ${remainingDeficit.toString()} aUSD from admin to fund stability pool...`
+        );
+        await ctx.protocolProgram.methods
+          .stake({ amount: remainingDeficit })
+          .accounts({
+            user: ctx.admin.publicKey,
+            userStakeAmount: adminPdas.userStakeAmount,
+            state: ctx.protocolState,
+            userStablecoinAccount: adminStablecoinAccount,
+            protocolStablecoinVault: adminPdas.protocolStablecoinAccount,
+            stableCoinMint: ctx.stablecoinMint,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([ctx.admin.payer])
+          .rpc();
+        console.log("  ✅ Admin stake completed");
+      }
+
+      // Derive StabilityPoolSnapshot PDA for SOL
+      const [stabilityPoolSnapshotPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("stability_pool_snapshot"), Buffer.from("SOL")],
+        ctx.protocolProgram.programId
+      );
+
+      const snapshotInfo =
+        await ctx.provider.connection.getAccountInfo(stabilityPoolSnapshotPda);
+      console.log(
+        "  Stability pool snapshot account:",
+        snapshotInfo ? `exists (len=${snapshotInfo.data.length})` : "missing"
+      );
+
+      const vaultBalanceAfterInfo =
+        await ctx.provider.connection.getTokenAccountBalance(
+          protocolStablecoinVault
+        );
+      console.log(
+        "  Protocol stablecoin vault balance after funding:",
+        vaultBalanceAfterInfo.value.amount
+      );
 
       // Step 3: Call the liquidate_trove instruction from liquidator
       await ctx.protocolProgram.methods
@@ -577,6 +620,8 @@ describe("Protocol Contract - Liquidation Tests", () => {
           oracleState: oracleState,
           pythPriceAccount: pythPriceAccount,
           clock: clock,
+
+          stabilityPoolSnapshot: stabilityPoolSnapshotPda,
 
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,

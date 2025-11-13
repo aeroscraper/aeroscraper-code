@@ -123,12 +123,30 @@ pub fn safe_div(a: u64, b: u64) -> Result<u64> {
 
 // Helper function to update total collateral amount
 pub fn update_total_collateral_from_account_info(
-    _account_info: &AccountInfo,
+    account_info: &AccountInfo,
     amount_change: i64,
 ) -> Result<()> {
-    // This would update the TotalCollateralAmount account
-    // For now, just log the change
-    msg!("Updating total collateral by: {}", amount_change);
+    use crate::state::TotalCollateralAmount;
+    
+    // Deserialize the TotalCollateralAmount account
+    let mut data = account_info.try_borrow_mut_data()?;
+    let mut total_collateral = TotalCollateralAmount::try_deserialize(&mut &data[..])?;
+    
+    // Apply the change
+    if amount_change >= 0 {
+        total_collateral.amount = total_collateral.amount
+            .checked_add(amount_change as u64)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+    } else {
+        total_collateral.amount = total_collateral.amount
+            .checked_sub(amount_change.abs() as u64)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+    }
+    
+    // Serialize back to account
+    total_collateral.try_serialize(&mut &mut data[..])?;
+    
+    msg!("Updated total collateral by: {} (new total: {})", amount_change, total_collateral.amount);
     Ok(())
 }
 
@@ -152,8 +170,8 @@ pub fn calculate_net_amount_after_fee(amount: u64, fee_percentage: u8) -> Result
 
 /// Calculate real ICR for a trove with multi-collateral support
 /// 
-/// Returns ICR as a simple percentage (not scaled)
-/// Example: 150% ICR = 150, 200% ICR = 200
+/// Returns ICR in micro-percent (percentage × 1,000,000)
+/// Example: 150% ICR = 150_000_000, 832.35% ICR = 832_350_000
 /// 
 /// This replaces the previous mock implementation
 pub fn get_trove_icr<'a>(
@@ -206,13 +224,15 @@ pub fn get_trove_icr<'a>(
     
     for (denom, _amount) in &collateral_amounts {
         if let Some(price) = collateral_prices.get(denom) {
-            // Get decimal precision for each denom
+            // Get ADJUSTED decimal precision for each denom (to produce micro-USD values)
+            // Formula: adjusted_decimal = token_decimals + price_exponent - 6
+            // Must match the oracle's adjusted_decimal calculation
             let decimal = match denom.as_str() {
-                "SOL" => 9,
-                "USDC" => 6,
-                "INJ" => 18,
-                "ATOM" => 6,
-                _ => 6, // Default to 6 decimals
+                "SOL" => 11,    // token(9) + price_exp(8) - target(6) = 11
+                "USDC" => 8,    // token(6) + price_exp(8) - target(6) = 8
+                "INJ" => 20,    // token(18) + price_exp(8) - target(6) = 20
+                "ATOM" => 8,    // token(6) + price_exp(8) - target(6) = 8
+                _ => 8,         // Default: assume 6 token decimals + 8 price exp - 6 = 8
             };
             
             price_data.push((denom.clone(), *price, decimal));
@@ -230,7 +250,7 @@ pub fn get_trove_icr<'a>(
 }
 
 /// Check if a trove's ICR meets the required minimum ratio
-/// ICR and minimum_ratio are both simple percentages (e.g., 150 = 150%)
+/// ICR and minimum_ratio are both in micro-percent (e.g., 150_000_000 = 150%)
 pub fn check_trove_icr_with_ratio(
     state_account: &StateAccount,
     icr: u64,
@@ -251,19 +271,18 @@ pub fn is_liquidatable_icr(icr: u64, liquidation_threshold: u64) -> bool {
 }
 
 /// Get the liquidation threshold (typically 110%)
-/// Returns as simple percentage: 110
+/// Returns in micro-percent: 110_000_000 = 110%
 pub fn get_liquidation_threshold() -> Result<u64> {
-    // 110% ICR is the liquidation threshold
-    Ok(110u64)
+    // 110% ICR is the liquidation threshold (in micro-percent)
+    Ok(110_000_000u64)
 }
 
 /// Check if ICR meets minimum collateral ratio requirement
-/// Both ICR and minimum_collateral_ratio are simple percentages
-pub fn check_minimum_icr(icr: u64, minimum_collateral_ratio: u8) -> Result<()> {
-    let minimum_ratio = minimum_collateral_ratio as u64;
-    
+/// ICR is in micro-percent (e.g., 150_000_000 = 150%)
+/// minimum_collateral_ratio is expected to be in micro-percent from StateAccount
+pub fn check_minimum_icr(icr: u64, minimum_collateral_ratio: u64) -> Result<()> {
     require!(
-        icr >= minimum_ratio,
+        icr >= minimum_collateral_ratio,
         AerospacerProtocolError::CollateralBelowMinimum
     );
     

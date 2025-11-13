@@ -7,14 +7,14 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-aerospacer_protocol = "9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ"
-aerospacer_oracle = "8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M"
-aerospacer_fees = "AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ"
+aerospacer_protocol = "HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk"
+aerospacer_oracle = "8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K"
+aerospacer_fees = "FyBGDrxVAdTnwKeXFrhQR1UyyJhqbfQmZrXWqZuhYkAj"
 
 [programs.devnet]
-aerospacer_protocol = "9sk8X11GWtZjzXWfkcLMRD6tmuhmiBKgMXsmx9bEh5YQ"
-aerospacer_oracle = "8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M"
-aerospacer_fees = "AHmGKukQky3mDHLmFyJYcEaFub69vp2QqeSW7EbVpJjZ"
+aerospacer_protocol = "HQbV7SKnWuWPHEci5eejsnJG7qwYuQkGzJHJ6nhLZhxk"
+aerospacer_oracle = "8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K"
+aerospacer_fees = "FyBGDrxVAdTnwKeXFrhQR1UyyJhqbfQmZrXWqZuhYkAj"
 
 [registry]
 url = "https://api.apr.dev"
@@ -25,10 +25,3 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/*.ts'"
-test-oracle-devnet = "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/oracle-*.ts'"
-test-fee-devnet = "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/fee-*.ts'"
-deploy_devnet = "anchor deploy --provider.cluster devnet"
-deploy_mainnet = "anchor deploy --provider.cluster mainnet"
-init_oracle_devnet = "npx ts-node scripts/init-oracle-devnet.ts"
-add_assets_devnet = "npx ts-node scripts/add-assets-devnet.ts"
-test_prices_devnet = "npx ts-node scripts/test-prices-devnet.ts"

@@ -58,7 +58,7 @@ anchor deploy --provider.cluster devnet --program-name aerospacer-oracle
 
 ### 4. Verify Deployment
 ```bash
-solana program show 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M --url devnet
+solana program show 8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K --url devnet
 ```
 
 ## 🚀 Initialize Oracle Contract
@@ -95,7 +95,7 @@ npm run add-assets-devnet
 ### 2. Verify Asset Addition
 ```bash
 # Check oracle state for added assets
-solana logs 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M --url devnet
+solana logs 8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K --url devnet
 ```
 
 ## 🔍 Test Price Queries
@@ -140,7 +140,7 @@ ANCHOR_PROVIDER_URL=https://api.devnet.solana.com npx ts-mocha -p ./tsconfig.jso
 ### 1. Check Deployment Status
 ```bash
 # Verify program is deployed
-solana program show 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M --url devnet
+solana program show 8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K --url devnet
 
 # Check wallet balance
 solana balance --url devnet
@@ -158,7 +158,7 @@ solana transaction-history --url devnet
 solana confirm <TRANSACTION_SIGNATURE> --url devnet
 
 # View program logs
-solana logs 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M --url devnet
+solana logs 8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K --url devnet
 ```
 
 ## 🔧 Troubleshooting
@@ -215,7 +215,7 @@ solana balance --url devnet
 ## 📊 Expected Results
 
 ### Successful Deployment Indicators
-- ✅ **Oracle Program Deployed**: `8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M`
+- ✅ **Oracle Program Deployed**: `8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K`
 - ✅ **State Account Initialized**: With admin and oracle address
 - ✅ **3 Assets Configured**: SOL, ETH, BTC with Pyth feeds
 - ✅ **Price Queries Working**: Real-time prices from Pyth devnet
@@ -254,7 +254,7 @@ anchor build --program-name aerospacer-oracle
 anchor deploy --provider.cluster devnet --program-name aerospacer-oracle
 
 # Verify deployment
-solana program show 8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M --url devnet
+solana program show 8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K --url devnet
 
 # Initialize oracle
 npm run init-oracle-devnet
@@ -293,5 +293,5 @@ If you encounter any issues:
 ---
 
 **Last Updated**: January 2025  
-**Oracle Program ID**: `8zG12srZdYaJPjWzCAJhwyxF7wWTz5spbmehxWpV5Q9M`  
+**Oracle Program ID**: `8Fu4YnUkfmrGQ3PTVoPfsAGjQ6NistGsiKpBEkPhzA2K`  
 **Network**: Solana Devnet

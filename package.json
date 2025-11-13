@@ -12,9 +12,7 @@
     "init-protocol-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/init-protocol-devnet.ts",
     "update-protocol-addresses": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/update-protocol-addresses.ts",
     "transfer-mint-authority": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/transfer-mint-authority.ts",
-    "close-sorted-troves-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/close-sorted-troves-devnet.ts",
-    "close-user-nodes-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/close-user-nodes-devnet.ts",
-    "close-specific-nodes-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/close-specific-nodes-devnet.ts",
+    "update-fee-config": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json ts-node scripts/update-fee-config-devnet.ts",
     "test-oracle-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/oracle-*.ts'",
     "test-fee-devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/fee-*.ts'"
   },

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
-use anchor_spl::token::{Token, SetAuthority, set_authority, spl_token::instruction::AuthorityType};
+use anchor_spl::token::{Token, Mint, SetAuthority, set_authority, spl_token::instruction::AuthorityType};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct InitializeParams {
@@ -26,9 +26,8 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
     
-    /// CHECK: This is the stable coin mint account
     #[account(mut)]
-    pub stable_coin_mint: UncheckedAccount<'info>,
+    pub stable_coin_mint: Account<'info, Mint>,
     
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
@@ -40,6 +39,7 @@ pub fn handler(ctx: Context<Initialize>, params: InitializeParams) -> Result<()>
     // Initialize state exactly like INJECTIVE's instantiate
     state.admin = ctx.accounts.admin.key();
     state.stable_coin_addr = ctx.accounts.stable_coin_mint.key();
+    state.stable_coin_code_id = params.stable_coin_code_id;
     state.oracle_helper_addr = params.oracle_helper_addr;
     state.oracle_state_addr = params.oracle_state_addr;
     state.fee_distributor_addr = params.fee_distributor_addr;

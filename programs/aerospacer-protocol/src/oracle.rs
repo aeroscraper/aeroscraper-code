@@ -96,9 +96,9 @@ impl<'info> OracleContext<'info> {
 /// Price calculation utilities
 /// 
 /// ICR Convention:
-/// All ICR values are represented as simple percentages (not scaled).
-/// Example: 150% ICR = 150, 200% ICR = 200
-/// This avoids u64 overflow issues while maintaining sufficient precision
+/// All ICR values are represented in micro-percent (percentage × 1,000,000).
+/// Example: 150% ICR = 150_000_000, 832.35% ICR = 832_350_000
+/// This matches the MCR storage format (DEFAULT_MINIMUM_COLLATERAL_RATIO = 115_000_000)
 pub struct PriceCalculator;
 
 impl PriceCalculator {
@@ -108,24 +108,37 @@ impl PriceCalculator {
         price: u64,
         decimal: u8,
     ) -> Result<u64> {
+        msg!("🔍 [PriceCalculator::calculate_collateral_value]");
+        msg!("  amount (lamports): {}", amount);
+        msg!("  price (raw Pyth): {}", price);
+        msg!("  decimal (from oracle): {}", decimal);
+        
         let decimal_factor = 10_u128.pow(decimal as u32);
-        let value = (amount as u128)
+        msg!("  decimal_factor (10^{}): {}", decimal, decimal_factor);
+        
+        let product = (amount as u128)
             .checked_mul(price as u128)
-            .ok_or(AerospacerProtocolError::OverflowError)?
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        msg!("  amount × price: {}", product);
+        
+        let value = product
             .checked_div(decimal_factor)
             .ok_or(AerospacerProtocolError::OverflowError)?;
+        msg!("  collateral_value (after division): {}", value);
         
         // Convert back to u64, ensuring it fits
         if value > u64::MAX as u128 {
+            msg!("❌ Overflow: value {} > u64::MAX", value);
             return Err(AerospacerProtocolError::OverflowError.into());
         }
         
+        msg!("✅ Final collateral_value (u64): {}", value as u64);
         Ok(value as u64)
     }
     
-    /// Calculate collateral ratio as a percentage (100 = 100%)
-    /// Returns ICR as an unscaled percentage for comparison
-    /// Example: 150% ICR = 150
+    /// Calculate collateral ratio in micro-percent (percentage × 1,000,000)
+    /// Returns ICR in micro-percent scale to match MCR storage format
+    /// Example: 150% ICR = 150_000_000, 832.35% ICR = 832_350_000
     /// 
     /// Note: Both collateral_value and debt_amount should be in the same units
     /// For proper ICR calculation, we need to normalize the units
@@ -133,29 +146,81 @@ impl PriceCalculator {
         collateral_value: u64,
         debt_amount: u64,
     ) -> Result<u64> {
+        msg!("🔍 [PriceCalculator::calculate_collateral_ratio]");
+        msg!("  collateral_value: {}", collateral_value);
+        msg!("  debt_amount: {}", debt_amount);
+        
         if debt_amount == 0 {
+            msg!("  debt is 0 → returning u64::MAX");
             return Ok(u64::MAX);
         }
         
         // Normalize both values to the same units for comparison
-        // Collateral value is typically in micro-USD (6 decimals)
-        // Debt amount is typically in micro-aUSD (18 decimals)
-        // We need to scale them to the same precision
+        // Collateral value is in micro-USD (6 decimals) - enforced by oracle's adjusted_decimal
+        // Debt amount is in 18 decimals (aUSD has 18 decimals)
+        // We need to scale them to the same precision: 10^(18-6) = 10^12
         
-        // Scale collateral value to match debt amount precision (18 decimals)
-        let scaled_collateral_value = (collateral_value as u128)
-            .checked_mul(1_000_000_000_000) // Scale up by 10^12 to match 18 decimals
+        // To avoid overflow while maintaining precision, we use chunked long-division
+        // Final formula: ICR = (collateral / debt) × 10^20
+        // Where 10^20 = 10^12 (decimal adjustment) × 10^8 (100 × 1_000_000 for micro-percent)
+        //
+        // Instead of multiplying by 10^20 all at once (which overflows), we:
+        // 1. Compute quotient and remainder: collateral / debt
+        // 2. Apply scaling in chunks: ×10^6, ×10^6, ×10^6, ×10^2 (total ×10^20)
+        // 3. After each chunk, divide by debt and carry the remainder
+        // This keeps all intermediates within u128 bounds
+        
+        let debt_128 = debt_amount as u128;
+        let mut quotient = collateral_value as u128;
+        let mut remainder = 0u128;
+        
+        // Chunk 1: ×10^6
+        remainder = quotient.checked_mul(1_000_000)
             .ok_or(AerospacerProtocolError::OverflowError)?;
+        quotient = remainder / debt_128;
+        remainder = remainder % debt_128;
+        msg!("  After chunk 1 (×10^6): quotient={}, remainder={}", quotient, remainder);
         
-        // Calculate ratio as percentage (multiply by 100)
-        let ratio = scaled_collateral_value
-            .checked_mul(100)
-            .ok_or(AerospacerProtocolError::OverflowError)?
-            .checked_div(debt_amount as u128)
+        // Chunk 2: ×10^6
+        quotient = quotient.checked_mul(1_000_000)
             .ok_or(AerospacerProtocolError::OverflowError)?;
+        remainder = remainder.checked_mul(1_000_000)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        let temp = remainder / debt_128;
+        quotient = quotient.checked_add(temp)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        remainder = remainder % debt_128;
+        msg!("  After chunk 2 (×10^6): quotient={}, remainder={}", quotient, remainder);
         
-        // Convert back to u64
-        u64::try_from(ratio).map_err(|_| AerospacerProtocolError::OverflowError.into())
+        // Chunk 3: ×10^6
+        quotient = quotient.checked_mul(1_000_000)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        remainder = remainder.checked_mul(1_000_000)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        let temp = remainder / debt_128;
+        quotient = quotient.checked_add(temp)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        remainder = remainder % debt_128;
+        msg!("  After chunk 3 (×10^6): quotient={}, remainder={}", quotient, remainder);
+        
+        // Chunk 4: ×10^2 (final scaling to reach 10^20 total)
+        quotient = quotient.checked_mul(100)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        remainder = remainder.checked_mul(100)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        let temp = remainder / debt_128;
+        let icr_micro_percent = quotient.checked_add(temp)
+            .ok_or(AerospacerProtocolError::OverflowError)?;
+        msg!("  Final ICR (micro-percent): {}", icr_micro_percent);
+        
+        // Convert to u64
+        let result = u64::try_from(icr_micro_percent).map_err(|_| {
+            msg!("❌ Overflow converting ratio {} to u64", icr_micro_percent);
+            AerospacerProtocolError::OverflowError
+        })?;
+        
+        msg!("✅ Final ICR (micro-percent): {} (human: {}%)", result, result / 1_000_000);
+        Ok(result)
     }
     
     /// Check if trove is liquidatable
@@ -292,7 +357,13 @@ pub fn get_price_via_cpi<'info>(
     // Deserialize PriceResponse
     let price_response: PriceResponse = PriceResponse::deserialize(&mut &return_data.1[..])?;
     
-    msg!("Price received: {} for {}", price_response.price, price_response.denom);
+    msg!("✅ [Oracle CPI] Price received from oracle:");
+    msg!("  denom: {}", price_response.denom);
+    msg!("  price: {}", price_response.price);
+    msg!("  decimal: {}", price_response.decimal);
+    msg!("  exponent: {}", price_response.exponent);
+    msg!("  confidence: {}", price_response.confidence);
+    msg!("  timestamp: {}", price_response.timestamp);
     
     Ok(price_response)
 }

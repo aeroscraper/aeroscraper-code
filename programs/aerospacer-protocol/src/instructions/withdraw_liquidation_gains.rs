@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount, Transfer, Mint};
 use crate::state::*;
 use crate::utils::*;
 use crate::error::*;
@@ -45,6 +45,9 @@ pub struct WithdrawLiquidationGains<'info> {
     #[account(mut)]
     pub user_collateral_account: Account<'info, TokenAccount>,
 
+    /// Collateral mint for validation
+    pub collateral_mint: Account<'info, Mint>,
+
     /// CHECK: Protocol collateral vault PDA (stability pool)
     #[account(
         mut,
@@ -73,22 +76,65 @@ pub fn handler(ctx: Context<WithdrawLiquidationGains>, params: WithdrawLiquidati
     let stability_pool_snapshot = &ctx.accounts.stability_pool_snapshot;
     let _state = &mut ctx.accounts.state;
     
-    // Validate user has stake
+    // SECURITY: Validate user has stake
     require!(
         user_stake_amount.amount > 0,
         AerospacerProtocolError::InvalidAmount
     );
     
+    // SECURITY: Verify stability_pool_snapshot is owned by this program
+    require!(
+        stability_pool_snapshot.to_account_info().owner == &crate::ID,
+        AerospacerProtocolError::InvalidList
+    );
+    
+    // SECURITY: Verify total_collateral_amount PDA is authentic
+    let (expected_total_coll_pda, _bump) = Pubkey::find_program_address(
+        &[b"total_collateral_amount", params.collateral_denom.as_bytes()],
+        &crate::ID,
+    );
+    require!(
+        expected_total_coll_pda == *ctx.accounts.total_collateral_amount.key,
+        AerospacerProtocolError::InvalidList
+    );
+    require!(
+        ctx.accounts.total_collateral_amount.owner == &crate::ID,
+        AerospacerProtocolError::InvalidList
+    );
+    
+    // SECURITY: Validate user_collateral_account belongs to user and matches collateral mint
+    require!(
+        ctx.accounts.user_collateral_account.owner == ctx.accounts.user.key(),
+        AerospacerProtocolError::Unauthorized
+    );
+    require!(
+        ctx.accounts.user_collateral_account.mint == ctx.accounts.collateral_mint.key(),
+        AerospacerProtocolError::InvalidMint
+    );
+    
     // SNAPSHOT ALGORITHM: Calculate collateral gain using Product-Sum formula
     // gain = initial_deposit × (S_current - S_snapshot) / P_snapshot
     
-    // Initialize S snapshot metadata if first time (but still calculate and transfer gains!)
-    let is_first_withdrawal = user_collateral_snapshot.s_snapshot == 0;
+    // Initialize or validate S snapshot metadata
+    let is_first_withdrawal = user_collateral_snapshot.s_snapshot == 0 
+        && user_collateral_snapshot.owner == Pubkey::default();
+    
     if is_first_withdrawal {
+        // First-time initialization
         user_collateral_snapshot.owner = ctx.accounts.user.key();
         user_collateral_snapshot.denom = params.collateral_denom.clone();
         user_collateral_snapshot.pending_collateral_gain = 0;
         msg!("First withdrawal for {} - calculating full accumulated gains", params.collateral_denom);
+    } else {
+        // SECURITY: Validate existing snapshot belongs to user and matches denom
+        require!(
+            user_collateral_snapshot.owner == ctx.accounts.user.key(),
+            AerospacerProtocolError::Unauthorized
+        );
+        require!(
+            user_collateral_snapshot.denom == params.collateral_denom,
+            AerospacerProtocolError::InvalidList
+        );
     }
     
     // Calculate collateral gain using helper function
@@ -112,6 +158,15 @@ pub fn handler(ctx: Context<WithdrawLiquidationGains>, params: WithdrawLiquidati
     msg!("  S_snapshot ({}): {}", params.collateral_denom, user_collateral_snapshot.s_snapshot);
     msg!("  S_current ({}): {}", params.collateral_denom, stability_pool_snapshot.s_factor);
     msg!("  Calculated gain: {}", collateral_gain);
+    
+    // SECURITY: Verify protocol vault has sufficient balance before transfer
+    let vault_data = ctx.accounts.protocol_collateral_vault.try_borrow_data()?;
+    let vault_account = TokenAccount::try_deserialize(&mut &vault_data[..])?;
+    require!(
+        vault_account.amount >= collateral_gain,
+        AerospacerProtocolError::InsufficientCollateral
+    );
+    drop(vault_data);
     
     // Transfer collateral gain from stability pool vault to user
     let transfer_seeds = &[

@@ -18,6 +18,9 @@ pub enum AerospacerProtocolError {
     #[msg("Invalid amount")]
     InvalidAmount,
     
+    #[msg("Invalid address")]
+    InvalidAddress,
+    
     #[msg("Invalid account data")]
     InvalidAccountData,
     
@@ -80,4 +83,10 @@ pub enum AerospacerProtocolError {
     
     #[msg("Invalid snapshot")]
     InvalidSnapshot,
+    
+    #[msg("Missing snapshot account in remaining_accounts")]
+    MissingSnapshotAccount,
+    
+    #[msg("Invalid snapshot account - does not match expected PDA")]
+    InvalidSnapshotAccount,
 }

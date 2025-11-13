@@ -92,6 +92,18 @@ pub fn handler(ctx: Context<CloseTrove>, params: CloseTroveParams) -> Result<()>
         AerospacerProtocolError::InvalidAmount
     );
     
+    // Apply pending redistribution rewards before closing trove
+    use crate::trove_management::apply_pending_rewards;
+    let total_collateral_data = ctx.accounts.total_collateral_amount.try_borrow_mut_data()?;
+    let total_collateral: TotalCollateralAmount = TotalCollateralAmount::try_from_slice(&total_collateral_data[8..])?;
+    drop(total_collateral_data);
+    
+    apply_pending_rewards(
+        &mut ctx.accounts.user_debt_amount,
+        &mut ctx.accounts.user_collateral_amount,
+        &total_collateral,
+    )?;
+    
     let debt_amount = ctx.accounts.user_debt_amount.amount;
     let collateral_amount = ctx.accounts.user_collateral_amount.amount;
     
